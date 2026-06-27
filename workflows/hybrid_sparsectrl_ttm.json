@@ -1,0 +1,37 @@
+{
+  "last_node_id": 95,
+  "last_link_id": 88,
+  "version": "1.0",
+  "_pipeline_note": "Scaffold graph — node class_type names must match your installed ComfyUI custom node packs. Wiring: OpenPose->SparseCtrl, Image->Zoe+Canny, all controls+TTM+AnimateDiff->WanWrapper->SaveVideo",
+  "_metadata_note": "Runtime metadata injected into extra.wan_art_pipeline by comfy_client.py",
+  "nodes": [
+    {"id": 1, "type": "LoadImage", "class_type": "LoadImage", "pos": [50, 100], "inputs": {"image": "__INJECT_IMAGE__"}},
+    {"id": 2, "type": "OpenPosePreprocessor", "class_type": "OpenPosePreprocessor", "pos": [300, 100], "inputs": {"image": ["1", 0]}},
+    {"id": 3, "type": "ZoeDepthPreprocessor", "class_type": "ZoeDepthPreprocessor", "pos": [550, 50], "widgets_values": [0.95], "inputs": {"image": ["1", 0]}},
+    {"id": 4, "type": "CannyEdgePreprocessor", "class_type": "CannyEdgePreprocessor", "pos": [550, 200], "widgets_values": [0.45], "inputs": {"image": ["1", 0]}},
+    {"id": 5, "type": "SparseCtrlLoader", "class_type": "SparseCtrlLoader", "pos": [800, 50], "widgets_values": [0.75], "inputs": {"pose_image": ["2", 0]}},
+    {"id": 6, "type": "TTMMotionPathLoader", "class_type": "TTMMotionPathLoader", "pos": [800, 200], "inputs": {"path_file": "ttm_paths/gentle_orbit.json"}},
+    {"id": 7, "type": "CLIPTextEncode", "class_type": "CLIPTextEncode", "pos": [1050, 50], "inputs": {"text": "__INJECT_POSITIVE__"}},
+    {"id": 8, "type": "CLIPTextEncode", "class_type": "CLIPTextEncode", "pos": [1050, 200], "inputs": {"text": "__INJECT_NEGATIVE__"}},
+    {"id": 9, "type": "GGUFLoader", "class_type": "GGUFLoader", "pos": [1300, 50], "inputs": {}},
+    {"id": 10, "type": "AnimateDiffLoader", "class_type": "AnimateDiffLoader", "pos": [1300, 200], "inputs": {}},
+    {"id": 11, "type": "WanVideoI2VWrapper", "class_type": "WanVideoI2VWrapper", "pos": [1550, 150], "inputs": {
+      "positive": ["7", 0],
+      "negative": ["8", 0],
+      "model": ["9", 0],
+      "motion_module": ["10", 0],
+      "sparsectrl": ["5", 0],
+      "ttm_path": ["6", 0],
+      "zoe_depth": ["3", 0],
+      "canny": ["4", 0],
+      "image": ["1", 0],
+      "seed": "__INJECT_SEED__",
+      "steps": "__INJECT_STEPS__",
+      "cfg": "__INJECT_CFG__"
+    }},
+    {"id": 12, "type": "SaveVideo", "class_type": "SaveVideo", "pos": [1800, 150], "inputs": {"video": ["11", 0], "filename_prefix": "wan_art_"}}
+  ],
+  "extra": {
+    "wan_art_pipeline": {}
+  }
+}

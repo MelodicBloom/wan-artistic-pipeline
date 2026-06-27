@@ -38,32 +38,47 @@ class ComfyClient:
         image_name: str,
         seed: int,
         gen_params: Dict,
+        metadata: Optional[Dict] = None,
     ) -> Dict:
         """
         Injects prompt, seed, image, and generation params into workflow nodes.
-        Node type matching handles both standard and custom node naming.
+        Also stamps extra.wan_art_pipeline with the full metadata payload.
+
+        Rationale for extra.wan_art_pipeline:
+          ComfyUI's API format supports an 'extra' root key that persists
+          through the queue and into history. This is the safest transport
+          for structured metadata without touching node internals, which
+          vary by custom node pack.
         """
-        wf = json.loads(json.dumps(workflow))  # deep copy
+        wf = json.loads(json.dumps(workflow))  # deep copy — never mutate source
+
+        # Stamp metadata into extra block
+        wf.setdefault("extra", {})
+        wf["extra"]["wan_art_pipeline"] = metadata or {}
+        wf["extra"]["wan_art_pipeline"]["seed"] = seed
+        wf["extra"]["wan_art_pipeline"]["generation"] = gen_params
+
+        pos_injected = False
         for node_id, node in wf.items():
+            if not isinstance(node, dict):
+                continue
             node_type = node.get("class_type", "")
             inputs = node.get("inputs", {})
 
-            if node_type in ("CLIPTextEncode",) and "text" in inputs:
-                # Heuristic: first text encode = positive, second = negative
-                if not hasattr(self, "_pos_injected"):
+            if node_type == "CLIPTextEncode" and "text" in inputs:
+                if not pos_injected:
                     inputs["text"] = positive
-                    self._pos_injected = True
+                    pos_injected = True
                 else:
                     inputs["text"] = negative
-                    del self._pos_injected
 
-            if node_type in ("LoadImage",) and "image" in inputs:
+            if node_type == "LoadImage" and "image" in inputs:
                 inputs["image"] = image_name
 
-            if node_type in ("KSampler", "KSamplerAdvanced"):
+            if node_type in ("KSampler", "KSamplerAdvanced", "WanVideoI2VWrapper"):
                 inputs["seed"] = seed
                 if "steps" in inputs:
-                    inputs["steps"] = gen_params.get("steps", 30)
+                    inputs["steps"] = gen_params.get("steps", 35)
                 if "cfg" in inputs:
                     inputs["cfg"] = gen_params.get("cfg_scale", 7.0)
 
@@ -120,11 +135,12 @@ class ComfyClient:
         image_name: str,
         seed: int,
         gen_params: Dict,
+        metadata: Optional[Dict] = None,
     ) -> bool:
-        """Full job: load → inject → queue → poll. Returns success bool."""
+        """Full job: load -> inject -> queue -> poll. Returns success bool."""
         workflow = self.load_workflow(workflow_path)
         injected = self.inject_prompt(
-            workflow, positive, negative, image_name, seed, gen_params
+            workflow, positive, negative, image_name, seed, gen_params, metadata
         )
         prompt_id = self.queue_prompt(injected)
         if not prompt_id:

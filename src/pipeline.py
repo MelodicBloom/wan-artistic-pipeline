@@ -1,6 +1,6 @@
 """
 Layer 7 — Pipeline Orchestrator
-Wires all layers together: config → analyze → prompt → queue → generate → watch.
+Wires all layers together: config -> analyze -> prompt -> queue -> generate -> watch.
 """
 
 import logging
@@ -15,6 +15,7 @@ from src.gpu_manager import get_generation_params, clear_cache
 from src.job_queue import JobQueue
 from src.comfy_client import ComfyClient
 from src.watcher import FolderWatcher
+from src.batch_scheduler import build_batch_manifest, save_manifest
 
 load_dotenv()
 log = logging.getLogger(__name__)
@@ -49,29 +50,37 @@ class Pipeline:
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.input_dir.mkdir(parents=True, exist_ok=True)
+        self.control_payload = {}  # set by generate.py before run
 
     def run_on_image(self, image_path: Path):
         """Full pipeline run for a single input image."""
-        log.info(f"Pipeline start → {image_path.name}")
+        log.info(f"Pipeline start -> {image_path.name}")
         clear_cache()
 
-        # Layer 1: CLIP analysis
         tokens = analyze(image_path)
         log.info(f"Semantic tokens: {tokens}")
 
-        # Layer 2: Prompt generation
         pack = load_pack(self.prompt_pack_path)
         jobs = generate_job_prompts(
             pack,
             tokens,
             variations_per_hybrid=self.pipeline_cfg["variations_per_hybrid"],
+            control_payload=getattr(self, "control_payload", {}),
+            duration_seconds=self.gen_cfg.get("duration_seconds", 6),
+            fps=self.gen_cfg.get("fps", 24),
         )
         log.info(f"Generated {len(jobs)} job prompts")
 
-        # Layer 3: GPU params
+        # Build batch manifest with full traceability
+        jobs = build_batch_manifest(
+            jobs=jobs,
+            control_payload=getattr(self, "control_payload", {}),
+            gen_cfg=self.gen_cfg,
+            ttm_path=getattr(self, "control_payload", {}).get("ttm_path"),
+        )
+
         gen_params = get_generation_params(self.gen_cfg)
 
-        # Layer 4+5: Queue → ComfyUI
         def run_fn(job, img_path, wf_path, gp):
             return self.comfy.run_job(
                 workflow_path=wf_path,
@@ -80,11 +89,16 @@ class Pipeline:
                 image_name=img_path.name,
                 seed=job["seed"],
                 gen_params=gp,
+                metadata=job.get("metadata"),
             )
 
         for batch_num in range(1, self.pipeline_cfg["num_batches"] + 1):
             log.info(f"--- Batch {batch_num}/{self.pipeline_cfg['num_batches']} ---")
             self.queue.run(jobs, run_fn, image_path, self.workflow_path, gen_params)
+
+        if jobs:
+            batch_id = jobs[0].get("batch_id", "batch_unknown")
+            save_manifest(jobs, self.output_dir, batch_id)
 
         log.info(f"Pipeline complete for {image_path.name}")
 
