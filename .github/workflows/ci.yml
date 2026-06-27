@@ -1,0 +1,101 @@
+name: Pipeline CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install linting deps
+        run: pip install ruff
+
+      - name: Ruff lint
+        run: ruff check src/ generate.py
+
+  dry-run:
+    name: Dry Run Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps (CPU-only torch for CI)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install transformers Pillow requests pyyaml python-dotenv watchdog tqdm
+
+      - name: Create dummy input image
+        run: |
+          python -c "
+          from PIL import Image
+          import os
+          os.makedirs('input', exist_ok=True)
+          img = Image.new('RGB', (64, 64), color=(120, 80, 180))
+          img.save('input/IMG_4738.jpg')
+          "
+
+      - name: Run dry-run
+        run: python generate.py --dry-run
+
+  validate-workflows:
+    name: Validate ComfyUI Workflow JSON
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: |
+          python -c "
+          import json, glob, sys
+          errors = []
+          for f in glob.glob('workflows/*.json'):
+              try:
+                  json.load(open(f))
+                  print(f'OK: {f}')
+              except json.JSONDecodeError as e:
+                  errors.append(f'{f}: {e}')
+          if errors:
+              for e in errors: print(f'ERROR: {e}')
+              sys.exit(1)
+          "
+
+  validate-prompt-packs:
+    name: Validate Prompt Packs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required keys
+        run: |
+          python -c "
+          import json, glob, sys
+          required = {'base_style', 'negative', 'hybrids', 'extra_modifiers'}
+          errors = []
+          for f in glob.glob('prompt-packs/*.json'):
+              data = json.load(open(f))
+              missing = required - set(data.keys())
+              if missing:
+                  errors.append(f'{f} missing keys: {missing}')
+              if not isinstance(data.get('hybrids'), list) or len(data['hybrids']) == 0:
+                  errors.append(f'{f}: hybrids must be non-empty list')
+              print(f'OK: {f} ({len(data[\"hybrids\"])} hybrids)')
+          if errors:
+              for e in errors: print(f'ERROR: {e}')
+              sys.exit(1)
+          "

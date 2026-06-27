@@ -1,0 +1,44 @@
+{
+  "base_style": "surreal ethereal dancer, intricate marbled wood-grain and iridescent abalone shell textures flowing like liquid across skin and gown, blooming white flowers and petals gently drifting, dark swirling background lines undulating, golden iridescent lighting, hypnotic graceful slow-motion contemporary dance",
+  "negative": "blurry, deformed, extra limbs, text, watermark, low quality, realistic photo, cartoon, flat, static, overexposed, harsh shadows, distorted proportions",
+  "hybrids": [
+    {
+      "name": "Liquid Bloom Dance",
+      "positive": "A graceful ethereal dancer slowly animates, body undulating like liquid marble, raised arm stretching languidly, white flowers blooming and petals floating on gentle cosmic wind, swirling patterns rippling across skin, slow orbiting camera with gentle zoom, cinematic surreal masterpiece"
+    },
+    {
+      "name": "Abalone Dreamscape",
+      "positive": "Dreamlike figure in marbled iridescent textures shimmering with blue-green nacre, elegant pose with head tilted back, flowers adorning body, background swirls flowing in harmony, soft glowing highlights, highly detailed artistic slow motion"
+    },
+    {
+      "name": "Golden Flow Motion",
+      "positive": "Golden luminous skin with flowing wood-grain patterns, delicate white blooms fluttering, fluid dance movement like underwater silk, dark abstract swirling void background, elegant cinematic lighting shifts, slow graceful motion"
+    },
+    {
+      "name": "Nacre Bloom",
+      "positive": "Figure dissolving into cascading nacre and mother-of-pearl light, blooming white roses emerging from swirling dark ink, iridescent highlights fracturing like prism across organic form, time-lapse bloom meets slow liquid pour"
+    },
+    {
+      "name": "Void Dancer",
+      "positive": "Luminous figure suspended in deep cosmic void, marbled veins of gold and jade threading through translucent skin, flowers orbiting in slow gravitational drift, dark nebula swirls as fabric folds, cinematic wide then close pull"
+    }
+  ],
+  "extra_modifiers": [
+    "subtle glowing particles, delicate light rays",
+    "soft volumetric god rays, gentle wind flow",
+    "enhanced iridescence, deeper nacre textures",
+    "more dynamic petal movement, dreamlike atmosphere",
+    "volumetric god rays",
+    "subtle particle glow",
+    "enhanced nacre shimmer",
+    "dreamlike wind flow",
+    "deep cinematic bokeh, luminous rim light",
+    "gossamer light threads, slow motion flower bloom"
+  ],
+  "motion_params": {
+    "strength": "medium-low",
+    "duration": "5-8 seconds",
+    "camera": "slow orbit + subtle zoom",
+    "style_keywords": ["surreal", "ethereal", "hypnotic", "marbled liquid", "iridescent", "blooming organic"]
+  }
+}

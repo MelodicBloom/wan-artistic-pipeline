@@ -1,0 +1,47 @@
+# Master pipeline configuration
+# Override any value via environment variables (see .env.example)
+
+pipeline:
+  num_workers: 2              # Parallel ComfyUI queue workers
+  num_batches: 3              # Full batch runs per trigger
+  variations_per_hybrid: 2   # Seeds per hybrid prompt
+  cooldown_seconds: 1         # Between jobs (GPU heat management)
+
+generation:
+  resolution: "1280x720"      # 720P default; drop to 832x480 on OOM
+  fps: 24
+  duration_seconds: 5
+  steps: 30
+  cfg_scale: 7.0
+  motion_strength: "medium-low"
+  seed_range: [0, 999999999]
+
+gpu:
+  target_gb: 40               # Target VRAM allocation
+  offload_model: true
+  convert_model_dtype: true
+  t5_cpu: true
+  # OOM fallback ladder:
+  # 1. Enable all three offload flags (above)
+  # 2. Drop to 832x480
+  # 3. Switch to TI2V-5B workflow
+  # 4. GGUF quantized (Q5_K)
+
+controlnet:
+  zoe_strength: 0.95          # Primary depth guidance
+  canny_strength: 0.45        # Secondary edge reinforcement
+  sparsectrl_strength: 0.75   # Sparse pose keyframes
+  animatediff_scale: 1.0      # Motion module scale
+
+models:
+  gguf: "wan2.2-i2v-14b-Q5_K.gguf"
+  animatediff_module: "mm_sd_v15_v2.ckpt"
+  clip_model: "openai/clip-vit-base-patch32"
+
+paths:
+  input_dir: "input"
+  output_dir: "outputs"
+  prompt_pack: "prompt-packs/surreal-ethereal-dancer.json"
+  workflow: "workflows/hybrid_zoe_canny_sparsectrl.json"
+  comfy_host: "127.0.0.1"
+  comfy_port: 8188

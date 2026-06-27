@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Env
+.env
+
+# Outputs (large video files — store in GDrive/S3, not git)
+outputs/
+*.mp4
+*.avi
+*.mov
+
+# Input images (personal / large)
+input/
+
+# Colab checkpoints
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db

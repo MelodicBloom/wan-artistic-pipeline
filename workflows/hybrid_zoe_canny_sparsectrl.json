@@ -1,0 +1,123 @@
+{
+  "_comment": "Hybrid Zoe Depth (0.95) + Canny (0.45) + SparseCtrl + AnimateDiff + Wan 2.2 GGUF I2V",
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {"image": "IMG_4738.jpg", "upload": "image"}
+  },
+  "2": {
+    "class_type": "ZoeDepthPreprocessor",
+    "inputs": {"image": ["1", 0]}
+  },
+  "3": {
+    "class_type": "CannyEdgePreprocessor",
+    "inputs": {"image": ["1", 0], "low_threshold": 100, "high_threshold": 200}
+  },
+  "4": {
+    "class_type": "OpenPosePreprocessor",
+    "inputs": {"image": ["1", 0]}
+  },
+  "5": {
+    "class_type": "ControlNetLoader",
+    "inputs": {"control_net_name": "control_v11f1p_sd15_depth.pth"}
+  },
+  "6": {
+    "class_type": "ControlNetLoader",
+    "inputs": {"control_net_name": "control_v11p_sd15_canny.pth"}
+  },
+  "7": {
+    "class_type": "SparseCtrlLoader",
+    "inputs": {"control_net_name": "sparsectrl_rgb.safetensors"}
+  },
+  "8": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "surreal ethereal dancer, intricate marbled wood-grain and iridescent abalone shell textures flowing like liquid, blooming white flowers, dark swirling background, golden iridescent lighting, graceful slow motion, cinematic masterpiece",
+      "clip": ["15", 1]
+    }
+  },
+  "9": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "blurry, deformed, extra limbs, text, watermark, realistic photo, cartoon, flat, static, overexposed",
+      "clip": ["15", 1]
+    }
+  },
+  "10": {
+    "class_type": "GGUFLoader",
+    "inputs": {"unet_name": "wan2.2-i2v-14b-Q5_K.gguf"}
+  },
+  "11": {
+    "class_type": "AnimateDiffLoaderWithContext",
+    "inputs": {
+      "model": ["10", 0],
+      "motion_module": "mm_sd_v15_v2.ckpt",
+      "context_options": null
+    }
+  },
+  "12": {
+    "class_type": "ApplyControlNet",
+    "inputs": {
+      "conditioning": ["8", 0],
+      "control_net": ["5", 0],
+      "image": ["2", 0],
+      "strength": 0.95
+    }
+  },
+  "13": {
+    "class_type": "ApplyControlNet",
+    "inputs": {
+      "conditioning": ["12", 0],
+      "control_net": ["6", 0],
+      "image": ["3", 0],
+      "strength": 0.45
+    }
+  },
+  "14": {
+    "class_type": "ApplySparseCtrl",
+    "inputs": {
+      "conditioning": ["13", 0],
+      "sparsectrl": ["7", 0],
+      "image": ["4", 0],
+      "strength": 0.75
+    }
+  },
+  "15": {
+    "class_type": "CLIPLoader",
+    "inputs": {"clip_name": "clip_l.safetensors", "type": "stable_diffusion"}
+  },
+  "16": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["11", 0],
+      "positive": ["14", 0],
+      "negative": ["9", 0],
+      "latent_image": ["17", 0],
+      "seed": 42,
+      "steps": 30,
+      "cfg": 7.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1.0
+    }
+  },
+  "17": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {"width": 1280, "height": 720, "batch_size": 1}
+  },
+  "18": {
+    "class_type": "VAEDecode",
+    "inputs": {"samples": ["16", 0], "vae": ["19", 0]}
+  },
+  "19": {
+    "class_type": "VAELoader",
+    "inputs": {"vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"}
+  },
+  "20": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "images": ["18", 0],
+      "fps": 24,
+      "filename_prefix": "wan_hybrid_dancer"
+    }
+  }
+}

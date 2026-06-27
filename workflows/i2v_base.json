@@ -1,0 +1,59 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {"image": "IMG_4738.jpg", "upload": "image"}
+  },
+  "2": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "surreal ethereal dancer, marbled liquid textures, blooming white flowers, golden iridescent lighting, graceful slow motion",
+      "clip": ["7", 1]
+    }
+  },
+  "3": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "blurry, deformed, extra limbs, text, watermark, realistic, cartoon",
+      "clip": ["7", 1]
+    }
+  },
+  "4": {
+    "class_type": "GGUFLoader",
+    "inputs": {"unet_name": "wan2.2-i2v-14b-Q5_K.gguf"}
+  },
+  "5": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": ["4", 0],
+      "positive": ["2", 0],
+      "negative": ["3", 0],
+      "latent_image": ["6", 0],
+      "seed": 42,
+      "steps": 30,
+      "cfg": 7.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1.0
+    }
+  },
+  "6": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {"width": 1280, "height": 720, "batch_size": 1}
+  },
+  "7": {
+    "class_type": "CLIPLoader",
+    "inputs": {"clip_name": "clip_l.safetensors", "type": "stable_diffusion"}
+  },
+  "8": {
+    "class_type": "VAEDecode",
+    "inputs": {"samples": ["5", 0], "vae": ["9", 0]}
+  },
+  "9": {
+    "class_type": "VAELoader",
+    "inputs": {"vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"}
+  },
+  "10": {
+    "class_type": "SaveVideo",
+    "inputs": {"images": ["8", 0], "fps": 24, "filename_prefix": "wan_dancer"}
+  }
+}
