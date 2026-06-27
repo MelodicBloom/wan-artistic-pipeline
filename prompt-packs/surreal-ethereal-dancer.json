@@ -1,44 +1,533 @@
 {
+  "_meta": {
+    "version": "2.0.0",
+    "author": "qt314wink",
+    "created": "2026-06-26",
+    "description": "Surreal ethereal dancer — full semantic design document. Every field is explicit and intentional. Maps to the AURELITH / Melodyfire aesthetic vocabulary: organic iridescence, liminal motion, generative texture, and meditative presence.",
+    "work_alignment": {
+      "AURELITH": "Marbled liquid texture = AURELITH's computational skin surface system. Iridescent abalone = the nacre shader layer in the GPU material stack.",
+      "Melodyfire": "Motion + audio-visual synchrony. The dancer is the visual equivalent of Melodyfire's unified creative platform — rhythm made body.",
+      "Beats_and_Boxes": "Immersive installation reference. Dark swirling void = the room environment. Blooming flowers = reactive particle system triggered by beat drops.",
+      "shader_gallery": "Zoe Depth + Canny hybrid = the same depth-normal decomposition used in the WebGL shader gallery. These parameters were reverse-engineered from GLSL normal map blending."
+    }
+  },
+
   "base_style": "surreal ethereal dancer, intricate marbled wood-grain and iridescent abalone shell textures flowing like liquid across skin and gown, blooming white flowers and petals gently drifting, dark swirling background lines undulating, golden iridescent lighting, hypnotic graceful slow-motion contemporary dance",
-  "negative": "blurry, deformed, extra limbs, text, watermark, low quality, realistic photo, cartoon, flat, static, overexposed, harsh shadows, distorted proportions",
+
+  "base_style_tokens": [
+    "surreal", "ethereal", "dancer",
+    "marbled wood-grain", "iridescent abalone", "liquid texture",
+    "blooming white flowers", "drifting petals",
+    "dark swirling background", "undulating lines",
+    "golden iridescent lighting", "hypnotic",
+    "graceful slow-motion", "contemporary dance"
+  ],
+
+  "negative": "blurry, deformed, extra limbs, text, watermark, low quality, realistic photo, cartoon, flat, static, overexposed, harsh shadows, distorted proportions, duplicate faces, bad anatomy, plastic skin, neon colors, horror, violence",
+
+  "negative_rationale": {
+    "blurry": "Wan 2.2 can soften temporal edges — explicit prohibition keeps frames sharp",
+    "static": "Prevents the model from treating the pose as a frozen image",
+    "neon colors": "Preserves the golden-abalone palette; prevents cyberpunk drift",
+    "plastic skin": "Forces organic, textured surface rendering over synthetic smoothness"
+  },
+
   "hybrids": [
     {
       "name": "Liquid Bloom Dance",
-      "positive": "A graceful ethereal dancer slowly animates, body undulating like liquid marble, raised arm stretching languidly, white flowers blooming and petals floating on gentle cosmic wind, swirling patterns rippling across skin, slow orbiting camera with gentle zoom, cinematic surreal masterpiece"
+      "id": "hybrid_01",
+
+      "positive": "A graceful ethereal dancer slowly animates, body undulating like liquid marble, raised arm stretching languidly, white flowers blooming and petals floating on gentle cosmic wind, swirling patterns rippling across skin, slow orbiting camera with gentle zoom, cinematic surreal masterpiece",
+
+      "tokens": [
+        "liquid marble undulation", "raised arm stretch", "languid",
+        "white flowers blooming", "petals floating", "cosmic wind",
+        "swirling skin patterns", "orbiting camera", "gentle zoom",
+        "cinematic", "surreal masterpiece"
+      ],
+
+      "semantics": {
+        "subject": "Single female figure, contemporary dancer, arms partially raised",
+        "texture_primary": "Marble — white and gold veining, fluid not static, liquid viscosity",
+        "texture_secondary": "Petals and organic fiber weave across gown surface",
+        "background": "Deep dark void, soft swirling ink lines at 20% opacity, no hard edges",
+        "lighting": "Golden hour chromatic — warm source at 45° upper-left, soft fill from below"
+      },
+
+      "motion": {
+        "body": {
+          "type": "undulation",
+          "axis": "vertical spine wave, S-curve propagation from hips to raised arm",
+          "speed": "0.3× realtime (extreme slow motion)",
+          "amplitude": "medium — 15–25° arc per limb segment",
+          "easing": "cubic ease-in-out, no sharp reversals"
+        },
+        "petals": {
+          "type": "particle drift",
+          "direction": "upward and slightly rightward, 10–15° from vertical",
+          "speed": "0.1× realtime, staggered by 0.2–0.5s per petal",
+          "rotation": "gentle tumble, ±20° per second",
+          "easing": "linear with micro ease-in on spawn"
+        },
+        "background_lines": {
+          "type": "slow vortex",
+          "direction": "clockwise, centered behind figure",
+          "speed": "0.05× realtime",
+          "easing": "linear continuous"
+        }
+      },
+
+      "camera": {
+        "movement": "slow orbit right-to-left",
+        "arc_degrees": 25,
+        "zoom": "subtle push-in, 1.0x → 1.08x over full duration",
+        "height": "eye level, slight upward tilt 5°",
+        "focal_length": "85mm equivalent (portrait compression)",
+        "easing": "ease-in-out cubic for orbit, linear for zoom",
+        "timing_cue": "orbit begins at 0.5s, reaches midpoint at duration/2"
+      },
+
+      "timing": {
+        "duration_seconds": 6,
+        "fps": 24,
+        "total_frames": 144,
+        "motion_start": "0.3s — body begins undulation after brief hold",
+        "bloom_cue": "1.5s — first flower fully opens",
+        "petal_peak": "3.0s — maximum petal density in frame",
+        "camera_peak": "4.5s — orbit at furthest point, zoom at 1.06x",
+        "fade_out": "none — hard cut preferred"
+      },
+
+      "quality": {
+        "detail_level": "ultra — skin texture, petal veining, marble grain all resolved",
+        "temporal_consistency": "high — use SparseCtrl 0.75 to anchor pose across frames",
+        "color_depth": "wide gamut — golden ambers, cool marble whites, deep void blacks",
+        "recommended_steps": 35,
+        "cfg_scale": 7.5
+      },
+
+      "controlnet_params": {
+        "zoe_depth_strength": 0.95,
+        "canny_strength": 0.40,
+        "sparsectrl_strength": 0.75,
+        "animatediff_scale": 1.0
+      },
+
+      "meaning": "Transformation without rupture. The body as a surface that holds multiple natures simultaneously — stone and water, still and moving. The raised arm is not a gesture of triumph but of becoming.",
+      "intent": "Establish the visual language of the series: slow, deliberate, textured motion that rewards close attention. The viewer should feel they are watching something that cannot be paused — an organism mid-metamorphosis.",
+      "inspiration": "Ana Mendieta's earth-body works, Hiroshi Sugimoto's long-exposure seascapes, AURELITH's nacre material shader (the abalone surface is the computational skin made painterly).",
+      "takeaways": [
+        "Lead piece — sets the tonal and textural baseline for the entire series",
+        "Marble undulation is the signature motion — preserve across all hybrids",
+        "Petal timing at 1.5s bloom cue is emotionally resonant — replicate in other hybrids"
+      ]
     },
+
     {
       "name": "Abalone Dreamscape",
-      "positive": "Dreamlike figure in marbled iridescent textures shimmering with blue-green nacre, elegant pose with head tilted back, flowers adorning body, background swirls flowing in harmony, soft glowing highlights, highly detailed artistic slow motion"
+      "id": "hybrid_02",
+
+      "positive": "Dreamlike figure in marbled iridescent textures shimmering with blue-green nacre, elegant pose with head tilted back, flowers adorning body, background swirls flowing in harmony, soft glowing highlights, highly detailed artistic slow motion",
+
+      "tokens": [
+        "blue-green nacre", "shimmering iridescence", "head tilted back",
+        "flowers adorning body", "glowing highlights", "dreamlike",
+        "background swirls", "harmony", "highly detailed"
+      ],
+
+      "semantics": {
+        "subject": "Single female figure, head tilted back 30–40°, neck extended, arms relaxed downward with slight outward float",
+        "texture_primary": "Abalone nacre — blue-green-purple iridescent shift, micro-layered light interference pattern",
+        "texture_secondary": "White flowers integrated into gown surface as structural elements, not floating",
+        "background": "Deep teal-to-black gradient swirl, softer and more diffuse than hybrid_01",
+        "lighting": "Cool backlighting from upper-right, creating halo effect at shoulder and neck edges"
+      },
+
+      "motion": {
+        "body": {
+          "type": "slow sway",
+          "axis": "lateral, centered at pelvis",
+          "speed": "0.25× realtime",
+          "amplitude": "8–12° total arc",
+          "easing": "sinusoidal — smooth oscillation, no hold at endpoints"
+        },
+        "nacre_shimmer": {
+          "type": "iridescence shift",
+          "behavior": "Color hue rotates 30° (blue → green → purple) across duration as lighting angle shifts",
+          "speed": "continuous, 0.5 hue cycles per 6 seconds",
+          "trigger": "driven by camera angle change, not body motion"
+        },
+        "background_swirls": {
+          "type": "harmonic flow",
+          "direction": "counterclockwise, matching body sway phase",
+          "speed": "0.04× realtime",
+          "easing": "linear"
+        }
+      },
+
+      "camera": {
+        "movement": "static with micro-float (0.3° drift, breathing feel)",
+        "zoom": "none",
+        "height": "slightly below eye level, 10° upward tilt — emphasizes neck extension",
+        "focal_length": "100mm equivalent (flattering compression, minimal distortion)",
+        "easing": "ease-in-out on micro-float",
+        "timing_cue": "camera begins micro-float at 0s, constant throughout"
+      },
+
+      "timing": {
+        "duration_seconds": 7,
+        "fps": 24,
+        "total_frames": 168,
+        "sway_start": "0s — body begins sway immediately, no hold",
+        "shimmer_peak": "3.5s — maximum hue rotation at mid-duration",
+        "background_peak": "5.0s — swirl density highest",
+        "fade_out": "gentle opacity fade from 5.5s → 7.0s, 100% → 85%"
+      },
+
+      "quality": {
+        "detail_level": "ultra — nacre micro-layering must be visible at 720P",
+        "temporal_consistency": "very high — iridescence shift must be smooth, no flicker",
+        "color_depth": "cool spectrum — teal, cobalt, purple, near-black void",
+        "recommended_steps": 38,
+        "cfg_scale": 7.0
+      },
+
+      "controlnet_params": {
+        "zoe_depth_strength": 1.0,
+        "canny_strength": 0.35,
+        "sparsectrl_strength": 0.80,
+        "animatediff_scale": 0.9
+      },
+
+      "meaning": "Surrender and receptivity. The tilted-back head is a posture of yielding — to light, to gravity, to the gaze. The nacre skin makes her simultaneously precious object and living being.",
+      "intent": "Create the coolest, most contemplative piece in the series. Contrast to hybrid_01's warm gold. This is the moon piece to its sun.",
+      "inspiration": "James Turrell's light installations, Yayoi Kusama's Infinity Rooms, the iridescence shader in the AURELITH nacre layer (blue-green-purple angular shift at 0.5 cycles per clip).",
+      "takeaways": [
+        "Nacre shimmer driven by camera angle is the key technical innovation — achieve via ControlNet depth shift",
+        "Cool palette is intentional counterpoint to hybrid_01 warmth",
+        "Static camera creates meditation-like stillness — resist urge to add orbit"
+      ]
     },
+
     {
       "name": "Golden Flow Motion",
-      "positive": "Golden luminous skin with flowing wood-grain patterns, delicate white blooms fluttering, fluid dance movement like underwater silk, dark abstract swirling void background, elegant cinematic lighting shifts, slow graceful motion"
+      "id": "hybrid_03",
+
+      "positive": "Golden luminous skin with flowing wood-grain patterns, delicate white blooms fluttering, fluid dance movement like underwater silk, dark abstract swirling void background, elegant cinematic lighting shifts, slow graceful motion",
+
+      "tokens": [
+        "golden luminous", "wood-grain skin", "white blooms fluttering",
+        "underwater silk", "fluid dance", "void background",
+        "cinematic lighting shifts", "graceful"
+      ],
+
+      "semantics": {
+        "subject": "Dancer in mid-movement, arms extended laterally, slight forward lean, fabric billowing",
+        "texture_primary": "Wood grain — warm amber-gold, flowing directionally aligned with body motion vector",
+        "texture_secondary": "Silk fabric — translucent, trailing behind motion with 0.3s physics delay",
+        "background": "Absolute void black with faint wood-grain echo lines, barely perceptible at 10% opacity",
+        "lighting": "Three-point cinematic: warm key at 30° upper-left, cool fill at 180°, subtle gold rim from below"
+      },
+
+      "motion": {
+        "body": {
+          "type": "continuous flow — underwater physics simulation",
+          "axis": "full-body, initiated at core, propagating outward to fingertips",
+          "speed": "0.35× realtime with variable acceleration — faster at joint initiations",
+          "amplitude": "large — full arm extension to 160° spread",
+          "easing": "fluid easing — ease-out on extension (like water drag), ease-in on retraction"
+        },
+        "fabric": {
+          "type": "trailing physics",
+          "delay": "0.3s behind body motion",
+          "flutter_frequency": "low — 0.5–1 Hz undulation",
+          "easing": "exponential decay oscillation after peak extension"
+        },
+        "lighting_shift": {
+          "type": "continuous sweep",
+          "direction": "key light rotates 15° over full duration (left → slightly left-center)",
+          "effect": "warm gold surface highlights shift across wood-grain texture, revealing grain direction",
+          "speed": "imperceptibly slow — viewer feels warmth change, doesn't see it"
+        }
+      },
+
+      "camera": {
+        "movement": "very slow dolly forward + slight tilt up",
+        "dolly_distance": "equivalent 1.12× zoom over full duration",
+        "height_change": "+3° tilt over duration",
+        "focal_length": "50mm equivalent (natural perspective)",
+        "easing": "linear ease-in — almost imperceptible start, building presence",
+        "timing_cue": "dolly begins at 1.0s, viewer barely notices until 4.0s"
+      },
+
+      "timing": {
+        "duration_seconds": 5,
+        "fps": 24,
+        "total_frames": 120,
+        "motion_start": "0s — dancer already in motion from first frame",
+        "fabric_trail_onset": "0.3s",
+        "lighting_peak": "4.0s — warmest golden moment, maximum grain visibility",
+        "dolly_midpoint": "3.0s",
+        "fade_out": "none — hard cut"
+      },
+
+      "quality": {
+        "detail_level": "ultra — wood grain directionality and lighting interaction must read at full resolution",
+        "temporal_consistency": "high — fabric trail requires frame coherence",
+        "color_depth": "warm spectrum — amber, gold, warm white blooms against pure black",
+        "recommended_steps": 32,
+        "cfg_scale": 7.5
+      },
+
+      "controlnet_params": {
+        "zoe_depth_strength": 0.90,
+        "canny_strength": 0.50,
+        "sparsectrl_strength": 0.70,
+        "animatediff_scale": 1.1
+      },
+
+      "meaning": "Momentum as identity. The body in motion is more itself than the body at rest. Wood grain as skin inverts the natural order — organic material becomes the living thing, and living tissue becomes structured pattern.",
+      "intent": "The most kinetic piece — shows the dancer as force rather than form. The void background ensures nothing competes with the body's directional energy.",
+      "inspiration": "Loïe Fuller's silk dance, computational fluid dynamics visualizations, the directional wood-grain shader from AURELITH's surface material system.",
+      "takeaways": [
+        "Higher AnimateDiff scale (1.1) needed for fabric trailing — don't reduce",
+        "Lighting sweep is subtle but critical — it's what makes wood grain read as alive",
+        "Dolly + tilt combination creates intimacy without cutting — respect the slow reveal"
+      ]
     },
+
     {
       "name": "Nacre Bloom",
-      "positive": "Figure dissolving into cascading nacre and mother-of-pearl light, blooming white roses emerging from swirling dark ink, iridescent highlights fracturing like prism across organic form, time-lapse bloom meets slow liquid pour"
+      "id": "hybrid_04",
+
+      "positive": "Figure dissolving into cascading nacre and mother-of-pearl light, blooming white roses emerging from swirling dark ink, iridescent highlights fracturing like prism across organic form, time-lapse bloom meets slow liquid pour",
+
+      "tokens": [
+        "dissolving figure", "cascading nacre", "mother-of-pearl light",
+        "white roses blooming", "dark ink swirl", "prism fracture",
+        "iridescent highlights", "time-lapse bloom", "slow liquid pour"
+      ],
+
+      "semantics": {
+        "subject": "Figure in transition between solid and liquid state — upper body defined, lower body dissolving into light",
+        "texture_primary": "Mother-of-pearl — layered interference, soft rainbow diffraction bands, semi-transparent",
+        "texture_secondary": "Dark ink fluid — swirling upward from lower frame, enveloping and releasing",
+        "background": "Near-black with dark ink bloom spreading from 60% screen height downward, fading to pure black at bottom",
+        "lighting": "Diffuse light source from within figure — self-luminous, no external key light, edges dissolve into background"
+      },
+
+      "motion": {
+        "body": {
+          "type": "dissolution — lower half loses definition progressively",
+          "direction": "upward dissolution from feet to hip over 4 seconds",
+          "speed": "extremely slow — 0.1× realtime for dissolution edge",
+          "easing": "ease-in — dissolution accelerates toward end"
+        },
+        "roses": {
+          "type": "time-lapse bloom",
+          "speed": "0.4× realtime — faster than other floral elements in series",
+          "count": "3–5 roses in frame simultaneously at peak",
+          "stagger": "0.8s between each bloom onset",
+          "easing": "ease-out — rapid open then slow final petal spread"
+        },
+        "ink_swirl": {
+          "type": "rising fluid",
+          "direction": "upward, counterclockwise spiral",
+          "speed": "0.15× realtime",
+          "density": "increases from 20% at 0s to 60% at 5s",
+          "easing": "linear"
+        },
+        "prism_fracture": {
+          "type": "light refraction flicker",
+          "frequency": "0.5–1.5 Hz irregular",
+          "colors": "spectral — violet, cyan, gold bands, 1–3px width",
+          "trigger": "appears on body edges where light meets dissolution boundary"
+        }
+      },
+
+      "camera": {
+        "movement": "none — locked",
+        "zoom": "none",
+        "height": "eye level",
+        "focal_length": "135mm equivalent (compression maximizes dissolution effect)",
+        "easing": "N/A — static",
+        "timing_cue": "locked camera forces viewer to watch dissolution rather than follow movement"
+      },
+
+      "timing": {
+        "duration_seconds": 7,
+        "fps": 24,
+        "total_frames": 168,
+        "dissolution_start": "0.5s — lower body begins softening",
+        "first_rose_bloom": "1.0s",
+        "second_rose_bloom": "1.8s",
+        "third_rose_bloom": "2.6s",
+        "prism_onset": "2.0s — fracture begins as dissolution crosses hip line",
+        "ink_peak": "5.5s — ink at maximum density",
+        "dissolution_complete": "6.5s — lower body fully dissolved",
+        "fade_out": "6.5s → 7.0s hard fade to black"
+      },
+
+      "quality": {
+        "detail_level": "ultra — prism fracture bands must be sharp at 1px, roses must show petal venation",
+        "temporal_consistency": "medium — intentional dissolution allows some frame-to-frame softness",
+        "color_depth": "full spectrum during prism phase — otherwise cool pearl and near-black",
+        "recommended_steps": 40,
+        "cfg_scale": 6.5
+      },
+
+      "controlnet_params": {
+        "zoe_depth_strength": 0.85,
+        "canny_strength": 0.55,
+        "sparsectrl_strength": 0.60,
+        "animatediff_scale": 0.85
+      },
+
+      "meaning": "The self as temporary coherence. Identity is a pattern that holds for a while, then releases. The roses bloom as the body dissolves — beauty intensifies as form departs.",
+      "intent": "The conceptual anchor of the series. More abstract than the other hybrids, intended as the emotional climax. Should feel inevitable, not sad — dissolution as completion.",
+      "inspiration": "Bill Viola's video installations (particularly The Greeting and Fire Woman), the nacre dissolution effect from Melodyfire's visualizer, Buddhist concept of anatta (non-self).",
+      "takeaways": [
+        "Lower SparseCtrl (0.60) is deliberate — less pose anchoring lets the dissolution read naturally",
+        "Locked camera is non-negotiable — any movement would undercut the stillness of watching something disappear",
+        "Three rose bloom staggers (0.8s apart) create emotional rhythm — this is the heartbeat of the piece"
+      ]
     },
+
     {
       "name": "Void Dancer",
-      "positive": "Luminous figure suspended in deep cosmic void, marbled veins of gold and jade threading through translucent skin, flowers orbiting in slow gravitational drift, dark nebula swirls as fabric folds, cinematic wide then close pull"
+      "id": "hybrid_05",
+
+      "positive": "Luminous figure suspended in deep cosmic void, marbled veins of gold and jade threading through translucent skin, flowers orbiting in slow gravitational drift, dark nebula swirls as fabric folds, cinematic wide then close pull",
+
+      "tokens": [
+        "luminous figure", "cosmic void", "suspended",
+        "gold and jade veins", "translucent skin", "flowers orbiting",
+        "gravitational drift", "nebula swirls", "fabric folds",
+        "wide to close pull"
+      ],
+
+      "semantics": {
+        "subject": "Dancer suspended weightless, no ground contact implied, centered in frame with negative space dominant",
+        "texture_primary": "Translucent skin with gold-jade marble vein threading — skin reads as semi-transparent, veins glow faintly",
+        "texture_secondary": "Nebula-like fabric folds — dark with faint bioluminescent edge highlighting",
+        "background": "Deep space black, subtle nebula bloom in upper-right quadrant at 15% opacity, no horizon line",
+        "lighting": "Internal luminescence from within figure — cold white-gold, radiates outward 2–4px soft glow"
+      },
+
+      "motion": {
+        "body": {
+          "type": "weightless float with micro-rotations",
+          "axis": "all three axes, extremely slow — like ISS drift",
+          "speed": "0.15× realtime",
+          "amplitude": "3–5° total rotation per axis over full duration",
+          "easing": "ease-in-out sinusoidal, continuous, no endpoints"
+        },
+        "flowers": {
+          "type": "orbital drift",
+          "orbit_radius": "15–25% of frame width from figure center",
+          "speed": "0.08× realtime — slower than all other floral elements in series",
+          "direction": "mixed — 2 clockwise, 1 counterclockwise",
+          "plane": "slightly tilted orbital plane, not flat",
+          "easing": "linear — no acceleration, pure drift"
+        },
+        "camera": {
+          "movement": "wide pullback then slow push-in — reveal arc",
+          "start_focal": "35mm equivalent — establishes cosmic scale and isolation",
+          "end_focal": "85mm equivalent — closes in to intimate portrait by end",
+          "zoom_easing": "ease-in-out cubic, primary motion of the clip",
+          "timing": "wide at 0s, begins pull-in at 2.5s, reaches portrait frame at 6.0s"
+        },
+        "nebula_swirl": {
+          "type": "extremely slow expansion",
+          "direction": "radially outward from figure",
+          "speed": "0.03× realtime — barely perceptible as motion, reads as ambient atmosphere",
+          "easing": "linear"
+        }
+      },
+
+      "camera": {
+        "movement": "wide → portrait pull-in",
+        "arc_degrees": 0,
+        "zoom": "35mm → 85mm equivalent over 6 seconds",
+        "height": "eye level, no tilt",
+        "focal_length": "35mm → 85mm (see motion.camera above)",
+        "easing": "ease-in-out cubic",
+        "timing_cue": "The camera is the protagonist of this clip — its journey from isolation to intimacy IS the meaning"
+      },
+
+      "timing": {
+        "duration_seconds": 8,
+        "fps": 24,
+        "total_frames": 192,
+        "float_start": "0s",
+        "floral_orbit_start": "0s",
+        "camera_pull_in_start": "2.5s",
+        "intimate_frame_reached": "6.0s",
+        "hold_intimate": "6.0s → 8.0s — 2 second hold at portrait focal length",
+        "fade_out": "none — hard cut at 8.0s — the intimacy should feel sudden"
+      },
+
+      "quality": {
+        "detail_level": "ultra — jade vein translucency must read at portrait focal length",
+        "temporal_consistency": "very high — the slow camera move requires frame-level smoothness",
+        "color_depth": "cold spectrum — jade green, cold gold, near-white luminescence, pure black void",
+        "recommended_steps": 40,
+        "cfg_scale": 7.0
+      },
+
+      "controlnet_params": {
+        "zoe_depth_strength": 1.0,
+        "canny_strength": 0.40,
+        "sparsectrl_strength": 0.80,
+        "animatediff_scale": 0.95
+      },
+
+      "meaning": "Solitude as freedom. The void is not loneliness but sovereignty — infinite negative space as evidence of self-possession. The camera's approach is the viewer earning intimacy rather than being given it.",
+      "intent": "The closing piece of the series. After dissolution in hybrid_04, this is rebirth in weightlessness. Should feel earned, quiet, and vast.",
+      "inspiration": "Kubrick's star gate sequence, Agnes Martin's grid paintings (emptiness as fullness), the cosmic shader environments built for Beats & Boxes installations.",
+      "takeaways": [
+        "The 2s hard hold at portrait focal length at the end is the most important timing decision in the series",
+        "Maximum Zoe Depth (1.0) and SparseCtrl (0.80) anchors the figure firmly during the long camera move",
+        "Camera movement IS the narrative arc — do not add competing body movements"
+      ]
     }
   ],
+
   "extra_modifiers": [
     "subtle glowing particles, delicate light rays",
     "soft volumetric god rays, gentle wind flow",
     "enhanced iridescence, deeper nacre textures",
     "more dynamic petal movement, dreamlike atmosphere",
-    "volumetric god rays",
-    "subtle particle glow",
-    "enhanced nacre shimmer",
-    "dreamlike wind flow",
     "deep cinematic bokeh, luminous rim light",
-    "gossamer light threads, slow motion flower bloom"
+    "gossamer light threads, slow motion flower bloom",
+    "pearl dust motes suspended in still air",
+    "micro-caustic light patterns on skin surface",
+    "breath-visible vapor, intimate cold atmosphere",
+    "refracted rainbow film on water-surface texture"
   ],
-  "motion_params": {
-    "strength": "medium-low",
-    "duration": "5-8 seconds",
-    "camera": "slow orbit + subtle zoom",
-    "style_keywords": ["surreal", "ethereal", "hypnotic", "marbled liquid", "iridescent", "blooming organic"]
+
+  "series_arc": {
+    "sequence": [
+      {"id": "hybrid_01", "role": "Opening — establishes the visual language and warmth"},
+      {"id": "hybrid_02", "role": "Deepening — cool counterpoint, contemplative stillness"},
+      {"id": "hybrid_03", "role": "Kinetic peak — maximum motion energy"},
+      {"id": "hybrid_04", "role": "Emotional climax — dissolution, transformation"},
+      {"id": "hybrid_05", "role": "Resolution — weightlessness, earned intimacy"}
+    ],
+    "arc": "warmth → cool → kinetic → dissolution → cosmic",
+    "palette_arc": "gold → teal-cobalt → amber → pearl-black → jade-void",
+    "motion_arc": "undulation → sway → full-body flow → dissolution → weightless float",
+    "camera_arc": "slow orbit → static → dolly → locked → wide-to-portrait",
+    "overall_meaning": "A body moving through states of being: present and textured → reflective → forceful → dissolving → transcendent. The series maps the interior journey of creative work itself — from first mark to release."
+  },
+
+  "generation_defaults": {
+    "resolution": "1280x720",
+    "fps": 24,
+    "steps": 35,
+    "cfg_scale": 7.0,
+    "motion_strength": "medium-low",
+    "seed": "random per variation",
+    "prompt_extension": "local-qwen"
   }
 }

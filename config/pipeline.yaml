@@ -1,8 +1,9 @@
-# Master pipeline configuration
+# Master pipeline configuration v2
+# All values are explicit and documented.
 # Override any value via environment variables (see .env.example)
 
 pipeline:
-  num_workers: 2              # Parallel ComfyUI queue workers
+  num_workers: 2              # Parallel ComfyUI queue workers (set to 1 on <16GB VRAM)
   num_batches: 3              # Full batch runs per trigger
   variations_per_hybrid: 2   # Seeds per hybrid prompt
   cooldown_seconds: 1         # Between jobs (GPU heat management)
@@ -10,9 +11,9 @@ pipeline:
 generation:
   resolution: "1280x720"      # 720P default; drop to 832x480 on OOM
   fps: 24
-  duration_seconds: 5
-  steps: 30
-  cfg_scale: 7.0
+  duration_seconds: 6         # Matches series_arc hybrid median duration
+  steps: 35                   # Raised from 30 — matches hybrid quality specs
+  cfg_scale: 7.0              # Midpoint; overridden per-hybrid via prompt pack
   motion_strength: "medium-low"
   seed_range: [0, 999999999]
 
@@ -21,17 +22,18 @@ gpu:
   offload_model: true
   convert_model_dtype: true
   t5_cpu: true
-  # OOM fallback ladder:
+  # OOM fallback ladder (auto-applied by gpu_manager.py):
   # 1. Enable all three offload flags (above)
   # 2. Drop to 832x480
   # 3. Switch to TI2V-5B workflow
   # 4. GGUF quantized (Q5_K)
 
 controlnet:
-  zoe_strength: 0.95          # Primary depth guidance
-  canny_strength: 0.45        # Secondary edge reinforcement
-  sparsectrl_strength: 0.75   # Sparse pose keyframes
-  animatediff_scale: 1.0      # Motion module scale
+  # Default values — overridden per-hybrid by prompt pack controlnet_params
+  zoe_strength: 0.95          # Primary volumetric depth guidance
+  canny_strength: 0.45        # Secondary edge reinforcement (fabric, petal edges)
+  sparsectrl_strength: 0.75   # Sparse pose keyframe anchoring
+  animatediff_scale: 1.0      # Motion module temporal coherence scale
 
 models:
   gguf: "wan2.2-i2v-14b-Q5_K.gguf"
