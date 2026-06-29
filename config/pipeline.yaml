@@ -7,6 +7,8 @@ pipeline:
   num_batches: 3              # Full batch runs per trigger
   variations_per_hybrid: 2   # Seeds per hybrid prompt
   cooldown_seconds: 1         # Between jobs (GPU heat management)
+  enable_sparse_keyframes: true
+  multi_keyframe_count: 4     # 3-5 recommended; 4 is the balanced default
 
 generation:
   resolution: "1280x720"      # 720P default; drop to 832x480 on OOM
@@ -34,6 +36,12 @@ controlnet:
   canny_strength: 0.45        # Secondary edge reinforcement (fabric, petal edges)
   sparsectrl_strength: 0.75   # Sparse pose keyframe anchoring
   animatediff_scale: 1.0      # Motion module temporal coherence scale
+  ttm_path_folder: "ttm_paths/"
+  default_ttm_path: "gentle_orbit.json"
+  sparse_keyframe_strengths:
+    start: 0.90               # High — viewer reads this as the pose anchor
+    middle: 0.65              # Low — allows texture flow and motion elasticity
+    end: 0.90                 # High — resolution anchor; critical for emotional read
 
 models:
   gguf: "wan2.2-i2v-14b-Q5_K.gguf"
@@ -44,6 +52,8 @@ paths:
   input_dir: "input"
   output_dir: "outputs"
   prompt_pack: "prompt-packs/surreal-ethereal-dancer.json"
-  workflow: "workflows/hybrid_zoe_canny_sparsectrl.json"
+  workflow: "workflows/hybrid_sparsectrl_ttm.json"
   comfy_host: "127.0.0.1"
   comfy_port: 8188
+  ttm_path_folder: "ttm_paths/"
+  default_ttm_path: "gentle_orbit.json"

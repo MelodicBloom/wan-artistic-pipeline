@@ -1,0 +1,34 @@
+{
+  "schema": "ttm_motion_path.v1",
+  "name": "gentle_orbit",
+  "description": "Slow circular orbit with subtle zoom and parallax — primary camera grammar for all series hybrids",
+  "duration": 6.0,
+  "fps": 24,
+  "motions": [
+    {
+      "type": "orbit",
+      "radius": 0.4,
+      "angle_start": 0,
+      "angle_end": 360,
+      "easing": "cubic-in-out",
+      "direction": "clockwise",
+      "note": "Full revolution over clip duration. Imperceptibly slow — felt rather than seen."
+    },
+    {
+      "type": "zoom",
+      "factor_start": 1.0,
+      "factor_end": 1.25,
+      "easing": "cubic-in-out",
+      "timing_cue": "begins at 0.5s, peak at clip end",
+      "note": "Draws viewer from full figure toward face/upper body. Emotional not mechanical."
+    },
+    {
+      "type": "parallax",
+      "strength": 0.15,
+      "layers": ["background_swirls", "petal_drift"],
+      "note": "Low-strength parallax preserves nacre texture depth without distorting body."
+    }
+  ],
+  "intent": "Reveal the iridescent textures from multiple angles while keeping the dancer as gravitational center",
+  "easing_vocabulary": "cubic-in-out matches the sinusoidal body undulation — camera and body breathe together"
+}
