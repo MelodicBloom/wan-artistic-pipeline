@@ -1,0 +1,176 @@
+{
+  "last_node_id": 12,
+  "last_link_id": 13,
+  "version": "1.0",
+  "_pipeline_note": "Volumetric + Parallax + TTM cinematic workflow. Optimized for surreal-ethereal-dancer series. Zoe Depth at 0.98 for 3D volume. God rays + multi-layer parallax via cinematic_orbit_volumetric.json. Fully wired — 13 explicit links. Load in ComfyUI, place TTM JSON in ttm_paths/, place image in input/.",
+  "_wiring_summary": "Node1(IMAGE)->2,3,4 | Node2(POSE)->5 | Node3(DEPTH)->11[0] | Node4(CANNY)->11[1] | Node5(CTRL)->11[2] | Node6(MOTION)->11[3] | Node7(POS)->11[4] | Node8(NEG)->11[5] | Node9(MODEL)->11[6] | Node10(ANIMATEDIFF)->11[7] | Node11(VIDEO)->12",
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "class_type": "LoadImage",
+      "pos": [50, 300],
+      "inputs": {},
+      "widgets_values": ["__INJECT_IMAGE__", "image"]
+    },
+    {
+      "id": 2,
+      "type": "OpenPosePreprocessor",
+      "class_type": "OpenPosePreprocessor",
+      "pos": [300, 100],
+      "inputs": {
+        "image": ["1", 0]
+      },
+      "widgets_values": [true, true, true, "v1.1"]
+    },
+    {
+      "id": 3,
+      "type": "ZoeDepthPreprocessor",
+      "class_type": "ZoeDepthPreprocessor",
+      "pos": [300, 280],
+      "inputs": {
+        "image": ["1", 0]
+      },
+      "widgets_values": [0.98]
+    },
+    {
+      "id": 4,
+      "type": "CannyEdgePreprocessor",
+      "class_type": "CannyEdgePreprocessor",
+      "pos": [300, 460],
+      "inputs": {
+        "image": ["1", 0]
+      },
+      "widgets_values": [100, 200, 0.45]
+    },
+    {
+      "id": 5,
+      "type": "SparseCtrlLoader",
+      "class_type": "SparseCtrlLoader",
+      "pos": [600, 100],
+      "inputs": {
+        "pose_image": ["2", 0]
+      },
+      "widgets_values": [0.75, "linear", 1]
+    },
+    {
+      "id": 6,
+      "type": "TTMMotionPathLoader",
+      "class_type": "TTMMotionPathLoader",
+      "pos": [600, 300],
+      "inputs": {},
+      "widgets_values": ["ttm_paths/cinematic_orbit_volumetric.json"]
+    },
+    {
+      "id": 7,
+      "type": "CLIPTextEncode",
+      "class_type": "CLIPTextEncode",
+      "pos": [600, 460],
+      "inputs": {
+        "text": "__INJECT_POSITIVE__"
+      },
+      "_positive_note": "Injected at runtime by comfy_client.py. Recommended additions from ttm path: 'volumetric god rays shifting with camera movement, inventive parallax scrolling on swirling background, multi-layer parallax depth, atmospheric volumetric haze, 3D cinematographic depth and volume'"
+    },
+    {
+      "id": 8,
+      "type": "CLIPTextEncode",
+      "class_type": "CLIPTextEncode",
+      "pos": [600, 560],
+      "inputs": {
+        "text": "__INJECT_NEGATIVE__"
+      }
+    },
+    {
+      "id": 9,
+      "type": "GGUFLoader",
+      "class_type": "GGUFLoader",
+      "pos": [900, 100],
+      "inputs": {},
+      "widgets_values": ["wan2.2-i2v-14b-Q5_K.gguf"]
+    },
+    {
+      "id": 10,
+      "type": "AnimateDiffLoader",
+      "class_type": "AnimateDiffLoader",
+      "pos": [900, 280],
+      "inputs": {},
+      "widgets_values": ["mm_sd_v15_v2.ckpt"]
+    },
+    {
+      "id": 11,
+      "type": "WanVideoI2VWrapper",
+      "class_type": "WanVideoI2VWrapper",
+      "pos": [1200, 300],
+      "inputs": {
+        "depth": ["3", 0],
+        "canny": ["4", 0],
+        "sparsectrl": ["5", 0],
+        "ttm_motion": ["6", 0],
+        "positive": ["7", 0],
+        "negative": ["8", 0],
+        "model": ["9", 0],
+        "motion_module": ["10", 0],
+        "image": ["1", 0]
+      },
+      "widgets_values": [
+        "__INJECT_SEED__",
+        "__INJECT_STEPS__",
+        "__INJECT_CFG__",
+        7.0,
+        "euler",
+        "normal",
+        144
+      ]
+    },
+    {
+      "id": 12,
+      "type": "SaveVideo",
+      "class_type": "SaveVideo",
+      "pos": [1500, 300],
+      "inputs": {
+        "video": ["11", 0]
+      },
+      "widgets_values": ["wan_art_", 24, "mp4"]
+    }
+  ],
+  "links": [
+    [1,  1, 0,  3, 0, "IMAGE"],
+    [2,  1, 0,  4, 0, "IMAGE"],
+    [3,  1, 0,  2, 0, "IMAGE"],
+    [4,  2, 0,  5, 0, "POSE"],
+    [5,  3, 0, 11, 0, "DEPTH"],
+    [6,  4, 0, 11, 1, "CANNY"],
+    [7,  5, 0, 11, 2, "CONTROL"],
+    [8,  6, 0, 11, 3, "MOTION"],
+    [9,  7, 0, 11, 4, "CONDITIONING"],
+    [10, 8, 0, 11, 5, "CONDITIONING"],
+    [11, 9, 0, 11, 6, "MODEL"],
+    [12, 10, 0, 11, 7, "MOTION_MODEL"],
+    [13, 11, 0, 12, 0, "VIDEO"]
+  ],
+  "groups": [
+    {
+      "title": "Input + Preprocessors",
+      "bounding": [30, 70, 580, 500],
+      "color": "#2a2a3a"
+    },
+    {
+      "title": "Control Stack (SparseCtrl + TTM)",
+      "bounding": [580, 70, 330, 360],
+      "color": "#1a2a1a"
+    },
+    {
+      "title": "Conditioning + Models",
+      "bounding": [580, 440, 340, 200],
+      "color": "#2a1a1a"
+    },
+    {
+      "title": "Generation + Output",
+      "bounding": [920, 70, 620, 400],
+      "color": "#1a1a2a"
+    }
+  ],
+  "extra": {
+    "wan_art_pipeline": {}
+  }
+}

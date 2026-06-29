@@ -1,0 +1,82 @@
+{
+  "schema": "ttm_motion_path.v1",
+  "name": "cinematic_orbit_volumetric",
+  "description": "Cinematic orbit with multi-layer parallax scrolling and volumetric god rays. Primary path for the full surreal-ethereal-dancer series when maximum 3D cinematographic depth is required. Orbit radius and zoom tuned to the dancer's negative space composition — figure stays centered while background layers drift at independent speeds to create genuine volumetric depth without competing with body motion.",
+  "duration": 7.0,
+  "fps": 24,
+  "motions": [
+    {
+      "type": "orbit",
+      "radius": 0.42,
+      "angle_start": 0,
+      "angle_end": 320,
+      "easing": "cubic-in-out",
+      "parallax": 0.28,
+      "note": "320° rather than 360° — avoids seam artifact on loop. 0.42 radius preserves figure centrality while generating enough angular shift to make nacre shimmer read as camera-driven rather than texture-baked."
+    },
+    {
+      "type": "zoom",
+      "factor_start": 1.0,
+      "factor_end": 1.28,
+      "easing": "cubic-in-out",
+      "timing_cue": "begins at 0.5s, peak at clip end",
+      "note": "1.28x terminal zoom — draws viewer from full figure toward face/upper body by clip end. Matches hybrid_01 and hybrid_02 emotional arc (establish → intimate)."
+    },
+    {
+      "type": "parallax_scroll",
+      "layers": [
+        {
+          "name": "background_swirls",
+          "speed": 0.55,
+          "direction": "opposite_to_orbit",
+          "note": "Counter-orbit drift creates hypnotic vortex feel. Dark line patterns move against camera — reinforces void depth."
+        },
+        {
+          "name": "volumetric_haze",
+          "speed": 0.80,
+          "direction": "opposite_to_orbit",
+          "note": "Mid-speed haze layer sits between swirls and petals. Creates atmospheric depth plane — the light fog that enhances iridescence and separates figure from background."
+        },
+        {
+          "name": "foreground_petals",
+          "speed": 1.25,
+          "direction": "with_orbit",
+          "note": "Petals move faster than camera and opposite to background — classic foreground parallax. Enhances perceived 3D volume. Petal flutter remains independent of parallax scroll."
+        }
+      ]
+    }
+  ],
+  "lighting": {
+    "volumetric_god_rays": true,
+    "ray_angle_shift": "camera_follow",
+    "intensity": "medium",
+    "ray_color": "warm_gold",
+    "ray_softness": "high",
+    "note": "Rays follow camera orbit angle — they shift as the camera moves, catching the nacre shimmer from new angles each moment. Softness set high to keep atmospheric rather than theatrical. Warm gold matches hybrid_01/03 palette; recolor to cool-white for hybrid_02/05."
+  },
+  "per_hybrid_notes": {
+    "hybrid_01_liquid_bloom_dance": "Primary path. Warm gold rays + orbit matches marble undulation and golden lighting. Use at full settings.",
+    "hybrid_02_abalone_dreamscape": "Use static camera (hybrid_02 spec) — swap to micro_float.json. If volumetric is desired, reduce orbit to 0.1 radius and recolor rays to cool-white.",
+    "hybrid_03_golden_flow_motion": "Replace orbit with dolly_forward.json per hybrid_03 camera spec. Parallax layers valid — retain at these speeds.",
+    "hybrid_04_nacre_bloom": "Locked camera per hybrid_04 spec — disable orbit and zoom. Parallax_scroll only, reduced to 0.3x speeds. God rays valid at low intensity.",
+    "hybrid_05_void_dancer": "Replace with wide_to_portrait.json (35mm->85mm pull-in). Parallax layers valid. Ray color: cool-white to match jade-void palette."
+  },
+  "prompt_keywords": [
+    "volumetric god rays shifting with camera movement",
+    "inventive parallax scrolling on swirling background",
+    "multi-layer parallax depth",
+    "background swirls drifting opposite to camera orbit",
+    "foreground petals parallax faster than mid-ground",
+    "atmospheric volumetric haze",
+    "3D cinematographic depth and volume",
+    "dynamic highlight shifts catching nacre shimmer",
+    "cinematic depth-of-field rack focus"
+  ],
+  "control_strategy": {
+    "zoe_depth_strength": 0.98,
+    "canny_strength": 0.45,
+    "sparsectrl_strength": 0.75,
+    "animatediff_scale": 1.0,
+    "rationale": "Zoe raised to 0.98 (from 0.95 default) for true 3D volume needed by parallax layers. Higher depth signal ensures parallax layers have accurate Z-separation to work against. Canny held at 0.45 — edge reinforcement for fabric and petal boundaries without fighting the parallax softness."
+  }
+}
