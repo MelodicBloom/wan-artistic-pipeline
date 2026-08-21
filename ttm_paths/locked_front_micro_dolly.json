@@ -1,0 +1,32 @@
+{
+  "schema": "ttm_motion_path.v1",
+  "name": "locked_front_micro_dolly",
+  "description": "Front-locked calibration path for topology-sensitive relief, lattice, material and portrait-anchor motion. Eliminates orbit/roll/yaw so local motion, material response and edge drift can be evaluated independently.",
+  "duration": 8.0,
+  "fps": 24,
+  "motions": [
+    {
+      "type": "zoom",
+      "factor_start": 1.0,
+      "factor_end": 1.016,
+      "easing": "cubic-in-out",
+      "timing_cue": "reach maximum at mid-scene and return to 1.0 by the final frame",
+      "note": "1.6% micro-dolly exposes shallow depth without creating generic AI zoom or edge hallucination. Runtime binding must implement a closed path, not a one-way terminal zoom."
+    },
+    {
+      "type": "parallax",
+      "strength": 0.04,
+      "layers": ["declared_movable_regions"],
+      "note": "Very low parallax only for regions explicitly declared movable by the control surface. Stationary anchors and background remain fixed."
+    }
+  ],
+  "constraints": {
+    "orbit_degrees": 0,
+    "yaw_degrees": 0,
+    "roll_degrees": 0,
+    "background_motion": 0,
+    "first_last_camera_match": true
+  },
+  "intent": "Make provider failures attributable: any full-object spin, background ripple, large camera orbit, or outer-edge drift is a failure rather than an authored motion cue.",
+  "easing_vocabulary": "cubic-in-out for the closed micro-dolly; local scene channels retain their own declared easing"
+}
