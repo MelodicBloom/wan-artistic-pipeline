@@ -1,0 +1,343 @@
+{
+  "schema": "wan.motion_control_surface.v0.1",
+  "id": "motion-control-surface.radial-relief.calibration-001",
+  "semantic_authority": {
+    "system": "Motion Oracle",
+    "repository": "MelodicBloom/melodyfire",
+    "path": "client/src/content/motion-oracle/generativeMotionGrammar.ts",
+    "version": "0.1.0",
+    "status": "provisional-pending-merge",
+    "commit": "af44d5341397d9a08a09e98c298bb5dba828ea46"
+  },
+  "contract_reference": {
+    "system": "Observation Ad Pipeline Motion Program IR",
+    "repository": "qt314wink/observation-ad-pipeline",
+    "path": "schemas/motion-program.schema.json",
+    "status": "provisional-pending-merge",
+    "commit": "4a65f885ec9f0a293402a0647c2547d9a1ed8a47"
+  },
+  "subject": "A precision-built sixfold calibration relief made from rigid walnut, dry printed paper, opal, labradorite and abalone, centered against a static matte-charcoal background.",
+  "intent": "Measure whether Wan preserves local topology while independently responding to fold strength, phase offset, material optics, lighting incidence, distortion frequency and camera compression.",
+  "structure": {
+    "topology": "radial_annular",
+    "symmetry_order": 6,
+    "regions": [
+      {
+        "id": "nucleus",
+        "movable": true,
+        "radius": [0.0, 0.22],
+        "description": "small six-petal mineral nucleus"
+      },
+      {
+        "id": "inner_lattice",
+        "movable": true,
+        "radius": [0.22, 0.48],
+        "description": "black-white stippled and crosshatched petal lattice"
+      },
+      {
+        "id": "aperture_band",
+        "movable": true,
+        "radius": [0.48, 0.76],
+        "description": "six rigid opaline petals with visible bevels and hidden mineral underlayers"
+      },
+      {
+        "id": "outer_anchor",
+        "movable": false,
+        "radius": [0.76, 1.0],
+        "description": "thick stationary walnut circular frame"
+      }
+    ]
+  },
+  "preservation": {
+    "locks": [
+      "exact center",
+      "sixfold symmetry order",
+      "outer silhouette",
+      "outer anchor",
+      "petal count",
+      "region order",
+      "material identity",
+      "background position"
+    ],
+    "prohibited": [
+      "whole_object_spin",
+      "transparent_duplicate",
+      "crossfade_ghost",
+      "outer_frame_deformation",
+      "liquid_background",
+      "paper_boiling",
+      "wood_melting",
+      "material_identity_drift"
+    ]
+  },
+  "materials": {
+    "wood": {
+      "description": "precision-cut walnut veneer with visible directional grain",
+      "response": "rigid",
+      "lighting_response": "broad warm matte highlight; no glow",
+      "roughness": 0.72,
+      "specular": 0.12
+    },
+    "paper": {
+      "description": "dry cotton paper carrying black stipple, halftone and crosshatch printing",
+      "response": "rigid_fold_only",
+      "lighting_response": "diffuse with contact-shadow emphasis; printed texture remains attached",
+      "roughness": 0.88
+    },
+    "opal": {
+      "description": "milky opal with broad internal spectral fire",
+      "response": "incidence_iridescent",
+      "lighting_response": "persistent mint-cyan-violet internal scatter",
+      "roughness": 0.24,
+      "internal_scatter": 0.56,
+      "flash_strength": 0.62
+    },
+    "labradorite": {
+      "description": "dark mineral with narrow blue-green directional flash",
+      "response": "angle_threshold_flash",
+      "lighting_response": "mostly dark until a favorable incidence threshold is crossed",
+      "roughness": 0.31,
+      "flash_strength": 0.82,
+      "flash_threshold_degrees": 22
+    },
+    "abalone": {
+      "description": "fine shell interference with green-violet-gold shimmer",
+      "response": "micro_iridescent",
+      "lighting_response": "small-scale spectral shifts rather than broad uniform glow",
+      "roughness": 0.26,
+      "shimmer_density": 0.68
+    }
+  },
+  "scenes": [
+    {
+      "id": "0B",
+      "name": "Counterfold Spectral Engine",
+      "grammar": "radial.counterphase",
+      "duration_seconds": 8.0,
+      "loop": false,
+      "primary_easing": "sineInOut",
+      "ttm_path": "ttm_paths/locked_front_micro_dolly.json",
+      "channels": [
+        {
+          "primitive": "rotate.local",
+          "target": "nucleus",
+          "amplitude": 14,
+          "unit": "deg",
+          "easing": "sineInOut"
+        },
+        {
+          "primitive": "rotate.local",
+          "target": "inner_lattice",
+          "amplitude": -9,
+          "unit": "deg",
+          "easing": "sineInOut"
+        },
+        {
+          "primitive": "fold.medial_ridge",
+          "target": "aperture_band",
+          "amplitude": 3.5,
+          "unit": "deg",
+          "strength": 0.42,
+          "phase_offset_seconds": 0.18,
+          "easing": "smoothstep"
+        },
+        {
+          "primitive": "reveal.density",
+          "target": "paper",
+          "start": 0.35,
+          "end": 0.92,
+          "easing": "quinticInOut"
+        }
+      ],
+      "keyframe_notes": [
+        "Exact calibration source; all regions aligned and outer anchor fixed.",
+        "Local nucleus and inner lattice enter counterphase while aperture folds remain shallow.",
+        "Peak counterphase alignment with maximum pattern resolution and mineral-local light response.",
+        "Hold charged transition state for scene 0A; no global spin, ghosting or background movement."
+      ],
+      "meaning": "Complexity comes from signed local phase relationships, not from spinning the complete disc.",
+      "takeaways": [
+        "If the outer frame rotates, the candidate fails locality.",
+        "If paper patterns crawl independently of their surface, the candidate fails temporal texture stability."
+      ]
+    },
+    {
+      "id": "0A",
+      "name": "Six-Gate Opaline Aperture",
+      "grammar": "radial.hinged_aperture",
+      "duration_seconds": 8.0,
+      "loop": true,
+      "primary_easing": "sineOut",
+      "ttm_path": "ttm_paths/locked_front_micro_dolly.json",
+      "channels": [
+        {
+          "primitive": "fold.root_hinge",
+          "target": "aperture_band",
+          "amplitude": 5.0,
+          "unit": "deg",
+          "strength": 0.52,
+          "phase_offset_seconds": 0.22,
+          "easing": "sineOut"
+        },
+        {
+          "primitive": "reveal.occlusion",
+          "target": "labradorite",
+          "start": 0.12,
+          "end": 0.82,
+          "easing": "smoothstep"
+        },
+        {
+          "primitive": "light.vein_propagate",
+          "target": "opal",
+          "strength": 0.62,
+          "phase_offset_seconds": 0.22,
+          "easing": "linear"
+        },
+        {
+          "primitive": "temporal.inverse_reassemble",
+          "target": "all_movable_regions",
+          "strength": 1.0,
+          "easing": "sineInOut"
+        }
+      ],
+      "keyframe_notes": [
+        "Begin from scene 0B charged state without continuing annular rotation.",
+        "Sequential petal-root hinges expose dark mineral underlayers through physical occlusion and contact shadow.",
+        "Peak six-sector reveal with vein-following mineral light; wood and paper remain non-glowing and rigid.",
+        "Inverse reassembly returns every movable region and camera control exactly to source alignment."
+      ],
+      "meaning": "The second scene changes grammar: it resolves the charged phase state through articulated gates and physical reveal rather than more rotation.",
+      "takeaways": [
+        "Opacity fades and transparent duplicate petals are failure substitutions, not valid reveals.",
+        "First and last source-aligned states must match for loop testing."
+      ]
+    }
+  ],
+  "lighting": {
+    "key": {
+      "type": "soft_directional",
+      "temperature_k": 4700,
+      "elevation_degrees": 34,
+      "azimuth_start_degrees": -24,
+      "azimuth_end_degrees": 80,
+      "intensity": 0.54
+    },
+    "mineral_probe": {
+      "type": "narrow_specular",
+      "temperature_k": 7200,
+      "incidence_degrees": 24,
+      "angular_speed_degrees_per_second": 31,
+      "intensity": 0.68,
+      "mask": ["opal", "labradorite", "abalone"]
+    },
+    "rim": {
+      "temperature_k": 3200,
+      "intensity": 0.24
+    },
+    "background": {
+      "motion": 0,
+      "displacement": 0,
+      "glow": 0
+    }
+  },
+  "effects": {
+    "ombre": {
+      "mode": "material_confined",
+      "direction": "center_to_tip",
+      "strength": 0.38,
+      "stops": ["opal_white", "mint", "teal", "cobalt", "violet"]
+    },
+    "glow": {
+      "mask": ["opal", "labradorite"],
+      "strength": 0.22,
+      "radius_pixels_at_720p": 2
+    },
+    "bleed": {
+      "strength": 0.08,
+      "maximum_width_pixels_at_720p": 1.5
+    },
+    "distortion": {
+      "type": "contained_ridge_warp",
+      "strength": 0.04,
+      "frequency": 0.42,
+      "octaves": 2,
+      "boundary_lock": true
+    }
+  },
+  "camera": {
+    "lens_mm": 48,
+    "aperture": 2.8,
+    "orientation": "locked_front",
+    "dolly_percent": 1.6,
+    "orbit_degrees": 0,
+    "yaw_degrees": 0,
+    "roll_degrees": 0
+  },
+  "generation": {
+    "fps": 24,
+    "multi_keyframe_count": 4,
+    "enable_sparse_keyframes": true,
+    "sparse_strengths": {
+      "start": 0.9,
+      "middle": 0.65,
+      "end": 0.9
+    },
+    "sparsectrl_strength": 0.75,
+    "zoe_strength": 0.95,
+    "canny_strength": 0.45,
+    "animatediff_scale": 1.0,
+    "ttm_path": "ttm_paths/locked_front_micro_dolly.json",
+    "workflow": null
+  },
+  "base_image_prompt": "Create a perfectly centered sixfold radial relief calibration object with four clearly separated concentric zones: a small six-petal mineral nucleus; a black-and-white patterned inner lattice; six large opaline petals with rigid beveled edges and visible hidden-underlayer seams; and a thick stationary walnut outer frame. Use matte walnut, dry white cotton paper printed with black stippling and crosshatching, milky opal, dark blue-green labradorite, and small abalone inserts. Make all six sectors geometrically identical. Use a flat matte charcoal background, neutral frontal camera, high edge clarity, clean layer separation and strong contact shadows. No pre-existing motion, blur, rays, liquid effects, transparency, asymmetry or floating fragments.",
+  "negative": [
+    "global rotation",
+    "turntable motion",
+    "water ripples",
+    "liquid halo",
+    "motion trail",
+    "duplicate petals",
+    "morphing outer frame",
+    "texture crawl",
+    "unmasked global glow"
+  ],
+  "failure_classes": {
+    "topology": ["petal_multiplication", "outer_frame_deformation"],
+    "temporal": ["ghost_frame", "crossfade_echo", "loop_jump", "texture_boiling"],
+    "camera": ["unintended_orbit", "turntable_spin", "edge_hallucination_from_zoom"],
+    "material": ["wood_liquefaction", "paper_boiling", "mineral_smear", "global_iridescent_recolor"],
+    "environment": ["water_ripple_background", "radial_wall_wave"]
+  },
+  "experiments": [
+    {
+      "id": "EXP-FOLD",
+      "parameter": "scenes.1.channels.0.strength",
+      "values": [0.2, 0.4, 0.6],
+      "prediction": "Higher fold strength should deepen occlusion/contact shadow while increasing topology-drift risk."
+    },
+    {
+      "id": "EXP-PHASE",
+      "parameter": "scenes.1.channels.0.phase_offset_seconds",
+      "values": [0.08, 0.18, 0.34],
+      "prediction": "Larger offsets should move behavior from near-synchronous breathing toward a legible six-sector relay."
+    },
+    {
+      "id": "EXP-INCIDENCE",
+      "parameter": "lighting.mineral_probe.incidence_degrees",
+      "values": [14, 24, 36],
+      "prediction": "Incidence changes should alter labradorite flash timing without recoloring wood or paper."
+    },
+    {
+      "id": "EXP-DISTORT-FREQ",
+      "parameter": "effects.distortion.frequency",
+      "values": [0.42, 0.8, 1.2],
+      "prediction": "Higher frequency at fixed strength should create finer turbulence and increase texture-boiling risk without increasing macro edge displacement."
+    },
+    {
+      "id": "EXP-LENS",
+      "parameter": "camera.lens_mm",
+      "values": [32, 48, 85],
+      "prediction": "Longer focal length should reduce perspective change and emphasize premium material read at the same dolly percentage."
+    }
+  ]
+}
