@@ -65,6 +65,11 @@ def build_multikeyframe_metadata(
     Rationale: start/end poses are the viewer's read points. Middle frames
     should remain elastic so texture flow and motion inference can breathe.
     A flat curve over-stabilizes and reads as mechanical.
+
+    `hybrid.keyframe_notes` may override the dancer-specific legacy notes.
+    This keeps existing prompt packs byte-compatible while allowing non-human
+    control surfaces (reliefs, lattices, materials, architecture) to describe
+    their own anchor states without inheriting anatomy language.
     """
     count = int(control_payload.get("multi_keyframe_count", 4))
     strengths = control_payload.get("sparse_strengths", {"start": 0.9, "middle": 0.65, "end": 0.9})
@@ -72,6 +77,7 @@ def build_multikeyframe_metadata(
     motion = hybrid.get("motion", {})
     timing = hybrid.get("timing", {})
     camera = hybrid.get("camera", {})
+    keyframe_notes = hybrid.get("keyframe_notes") or DEFAULT_POSE_NOTES
 
     times = [round(duration_seconds * i / max(count - 1, 1), 2) for i in range(count)]
     keyframe_labels = ["start"] + [f"mid{i}" for i in range(1, count - 1)] + ["end"]
@@ -84,7 +90,7 @@ def build_multikeyframe_metadata(
             "id": label,
             "t": times[i],
             "strength": strength,
-            "pose": DEFAULT_POSE_NOTES[i] if i < len(DEFAULT_POSE_NOTES) else "interpolated",
+            "pose": keyframe_notes[i] if i < len(keyframe_notes) else "interpolated",
             "behavior": motion.get("body", {}).get("type", "smooth interpolation"),
             "easing": motion.get("body", {}).get("easing", "cubic ease-in-out"),
             "cue": timing.get("motion_start", "start of clip") if is_anchor else "interpolated",
