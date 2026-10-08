@@ -297,6 +297,8 @@ def compile_scene(surface: Dict[str, Any], scene_id: str) -> Dict[str, Any]:
             "surface_id": surface["id"],
             "surface_sha256": sha256(surface),
             "scene_id": scene_id,
+            "semantic_authority": surface["semantic_authority"],
+            "contract_reference": surface["contract_reference"],
             "grammar": scene["grammar"],
             "channels": channels,
             "structure": surface["structure"],
