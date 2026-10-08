@@ -11,6 +11,7 @@ from src.motion_control_surface import (
     validate_surface,
 )
 from src.prompt_engine import build_multikeyframe_metadata
+from src.batch_scheduler import build_batch_manifest
 
 ROOT = Path(__file__).resolve().parents[1]
 SURFACE = ROOT / "prompt-packs" / "motion-control-surface-calibration.json"
@@ -44,6 +45,94 @@ class MotionControlSurfaceTest(unittest.TestCase):
         self.assertEqual(4, len(compiled["metadata"]["keyframes"]))
         self.assertIn("charged state", compiled["metadata"]["keyframes"][0]["pose"].lower())
         self.assertNotIn("arm raised", compiled["metadata"]["keyframes"][0]["pose"].lower())
+
+    def test_scheduler_preserves_compiled_control_surface_metadata(self) -> None:
+        compiled = compile_scene(self.surface, "0A")
+        jobs = [{
+            "name": "compiled_0a",
+            "positive": compiled["positive"],
+            "negative": compiled["negative"],
+            "seed": 314159,
+            "_hybrid": compiled["hybrid"],
+            "metadata": compiled["metadata"],
+        }]
+        manifest = build_batch_manifest(
+            jobs=jobs,
+            control_payload=compiled["control_payload"],
+            gen_cfg={"duration_seconds": 8, "fps": 24},
+            ttm_path=compiled["control_payload"]["ttm_path"],
+            batch_index=0,
+        )
+        metadata = manifest[0]["metadata"]
+        self.assertIn("motion_program", metadata)
+        self.assertEqual(self.surface["structure"], metadata["motion_program"]["structure"])
+        self.assertEqual(self.surface["materials"], metadata["motion_program"]["materials"])
+        self.assertFalse(metadata["motion_program"]["loop"])
+        self.assertEqual(compiled["metadata"]["keyframes"], metadata["keyframe_set"]["keyframes"])
+
+    def test_stationary_regions_reject_unknown_geometry_primitives(self) -> None:
+        invalid = copy.deepcopy(self.surface)
+        invalid["scenes"][0]["channels"][0]["target"] = "outer_anchor"
+        invalid["scenes"][0]["channels"][0]["primitive"] = "scale.local"
+        errors = validate_surface(invalid)
+        self.assertTrue(any("not permitted on stationary region" in error for error in errors), errors)
+
+    def test_generation_fields_are_validated_before_compile_indexing(self) -> None:
+        invalid = copy.deepcopy(self.surface)
+        for field in ("sparse_strengths", "sparsectrl_strength", "zoe_strength", "canny_strength", "animatediff_scale", "ttm_path"):
+            invalid["generation"].pop(field)
+        errors = validate_surface(invalid)
+        self.assertTrue(any("generation.sparse_strengths is required" in error for error in errors), errors)
+        with self.assertRaisesRegex(ValueError, "generation\.sparse_strengths is required"):
+            compile_scene(invalid, "0B")
+
+    def test_both_immutable_authority_references_are_required(self) -> None:
+        invalid = copy.deepcopy(self.surface)
+        invalid["semantic_authority"].pop("commit")
+        invalid["contract_reference"].pop("commit")
+        errors = validate_surface(invalid)
+        self.assertTrue(any("semantic_authority.commit is required" in error for error in errors), errors)
+        self.assertTrue(any("contract_reference.commit is required" in error for error in errors), errors)
+
+    def test_keyframe_notes_keep_semantic_anchors_for_supported_counts(self) -> None:
+        hybrid = {
+            "id": "notes",
+            "name": "notes",
+            "motion": {"body": {"type": "test", "easing": "linear"}},
+            "timing": {},
+            "camera": {},
+            "keyframe_notes": ["START", "ENTRY", "PEAK", "END"],
+        }
+        for count in (2, 3, 4, 5):
+            metadata = build_multikeyframe_metadata(
+                hybrid=hybrid,
+                control_payload={"multi_keyframe_count": count, "sparse_strengths": {"start": 0.9, "middle": 0.65, "end": 0.9}},
+                duration_seconds=8,
+                fps=24,
+            )
+            self.assertEqual("START", metadata["keyframes"][0]["pose"])
+            self.assertEqual("END", metadata["keyframes"][-1]["pose"])
+
+    def test_final_keyframe_maps_to_emitted_frame(self) -> None:
+        compiled = compile_scene(self.surface, "0B")
+        final = compiled["metadata"]["keyframes"][-1]
+        self.assertEqual(191, final["frame_index"])
+        self.assertEqual(191 / 24, final["t"])
+        self.assertEqual(192, compiled["metadata"]["frame_count"])
+
+    def test_compiled_motion_program_retains_loop_material_and_structure_controls(self) -> None:
+        compiled = compile_scene(self.surface, "0B")
+        program = compiled["control_payload"]["motion_program"]
+        self.assertFalse(program["loop"])
+        self.assertEqual(self.surface["structure"], program["structure"])
+        self.assertEqual(self.surface["materials"], program["materials"])
+
+    def test_experiment_variants_hold_seed_and_prompt_inputs_constant(self) -> None:
+        variants = build_experiment_variants(self.surface)
+        for experiment_id in {item["experiment_id"] for item in variants}:
+            subset = [item for item in variants if item["experiment_id"] == experiment_id]
+            self.assertEqual({314159}, {item["execution_seed"] for item in subset})
+            self.assertEqual(1, len({repr(item["prompt_inputs"]) for item in subset}))
 
     def test_legacy_prompt_engine_still_uses_default_pose_notes(self) -> None:
         hybrid = {
