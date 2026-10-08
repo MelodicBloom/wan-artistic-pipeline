@@ -13,6 +13,7 @@ Design rationale:
   cheap and unambiguous without restructuring the job schema.
 """
 
+import copy
 import json
 import logging
 import random
@@ -44,7 +45,7 @@ def build_keyframe_set(
     without losing pose consistency at the critical read points.
     """
     count = int(control.get("multi_keyframe_count", 4))
-    strengths = control.get("sparse_keyframe_strengths", {"start": 0.90, "middle": 0.65, "end": 0.90})
+    strengths = control.get("sparse_strengths", control.get("sparse_keyframe_strengths", {"start": 0.90, "middle": 0.65, "end": 0.90}))
     motion = hybrid.get("motion", {})
     timing = hybrid.get("timing", {})
 
@@ -97,9 +98,62 @@ def build_batch_manifest(
 
     enriched = []
     for i, job in enumerate(jobs):
-        hybrid = job.get("_hybrid", {})
+        hybrid = job.get("_hybrid") or job.get("hybrid") or {}
         variant_id = f"{hybrid.get('id', 'h00')}_var{(i % 2) + 1:02d}"
-        kfset = build_keyframe_set(hybrid, control_payload, duration, keyframe_set_index=i)
+
+        # A compiled control-surface job already carries the authoritative,
+        # provider-neutral metadata. Scheduler stamping must enrich it rather
+        # than replace it with the legacy dancer-shaped subset.
+        metadata = copy.deepcopy(job.get("metadata") or {})
+        if metadata:
+            keyframes = metadata.get("keyframes", [])
+            kfset = {
+                "keyframe_set_id": f"kfset_{i:02d}",
+                "anchor_count": len(keyframes),
+                "interpolation": metadata.get("sparsectrl", {}).get(
+                    "interpolation", "latent blending + temporal attention"
+                ),
+                "noise_injection": metadata.get("sparsectrl", {}).get(
+                    "noise_injection", "small stochastic jitter on intermediate frames only"
+                ),
+                "keyframes": keyframes,
+            }
+        else:
+            kfset = build_keyframe_set(hybrid, control_payload, duration, keyframe_set_index=i)
+            metadata = {
+                "schema": "wan_art_pipeline.multikeyframe.v1",
+                "hybrid_id": hybrid.get("id"),
+                "hybrid_name": hybrid.get("name"),
+                "duration_seconds": duration,
+                "fps": fps,
+                "ttm_path": resolved_ttm,
+                "keyframe_set": kfset,
+                "camera": hybrid.get("camera", {}),
+                "motion": hybrid.get("motion", {}),
+                "semantics": hybrid.get("semantics", {}),
+            }
+
+        metadata.update({
+            "batch_id": batch_id,
+            "variant_id": variant_id,
+            "hybrid_id": hybrid.get("id", metadata.get("hybrid_id")),
+            "hybrid_name": hybrid.get("name", metadata.get("hybrid_name")),
+            "duration_seconds": metadata.get("duration_seconds", duration),
+            "fps": metadata.get("fps", fps),
+            "ttm_path": metadata.get("ttm_path", resolved_ttm),
+            "keyframe_set": kfset,
+            "controlnet": {
+                "sparsectrl_strength": control_payload.get("sparsectrl_strength", 0.75),
+                "zoe_strength": control_payload.get("zoe_strength", 0.95),
+                "canny_strength": control_payload.get("canny_strength", 0.45),
+            },
+            "generation": gen_cfg,
+        })
+        metadata.setdefault("sparsectrl", {})
+        metadata["sparsectrl"].setdefault(
+            "strengths",
+            control_payload.get("sparse_strengths", {"start": 0.9, "middle": 0.65, "end": 0.9}),
+        )
 
         stamped = dict(job)
         stamped.update({
@@ -107,36 +161,7 @@ def build_batch_manifest(
             "variant_id": variant_id,
             "keyframe_set_id": kfset["keyframe_set_id"],
             "output_stem": f"{batch_id}__{variant_id}__{kfset['keyframe_set_id']}__s{job['seed']}",
-            "metadata": {
-                "schema": "wan_art_pipeline.multikeyframe.v1",
-                "batch_id": batch_id,
-                "variant_id": variant_id,
-                "hybrid_id": hybrid.get("id"),
-                "hybrid_name": hybrid.get("name"),
-                "duration_seconds": duration,
-                "fps": fps,
-                "ttm_path": resolved_ttm,
-                "sparsectrl": {
-                    "strengths": control_payload.get("sparse_strengths", {"start": 0.9, "middle": 0.65, "end": 0.9}),
-                    "anchor_count": kfset["anchor_count"],
-                    "interpolation": kfset["interpolation"],
-                    "noise_injection": kfset["noise_injection"],
-                },
-                "keyframe_set": kfset,
-                "camera": hybrid.get("camera", {}),
-                "motion": hybrid.get("motion", {}),
-                "semantics": hybrid.get("semantics", {}),
-                "controlnet": {
-                    "sparsectrl_strength": control_payload.get("sparsectrl_strength", 0.75),
-                    "zoe_strength": control_payload.get("zoe_strength", 0.95),
-                    "canny_strength": control_payload.get("canny_strength", 0.45),
-                },
-                "generation": gen_cfg,
-                "meaning": hybrid.get("meaning", ""),
-                "intent": hybrid.get("intent", ""),
-                "inspiration": hybrid.get("inspiration", ""),
-                "takeaways": hybrid.get("takeaways", []),
-            },
+            "metadata": metadata,
         })
         enriched.append(stamped)
         log.debug(f"Stamped: {stamped['output_stem']}")
