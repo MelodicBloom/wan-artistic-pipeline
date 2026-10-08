@@ -117,7 +117,7 @@ class MotionControlSurfaceTest(unittest.TestCase):
         compiled = compile_scene(self.surface, "0B")
         final = compiled["metadata"]["keyframes"][-1]
         self.assertEqual(191, final["frame_index"])
-        self.assertEqual(191 / 24, final["t"])
+        self.assertAlmostEqual(191 / 24, final["t"], places=6)
         self.assertEqual(192, compiled["metadata"]["frame_count"])
 
     def test_compiled_motion_program_retains_loop_material_and_structure_controls(self) -> None:
@@ -186,6 +186,10 @@ class MotionControlSurfaceTest(unittest.TestCase):
         self.assertEqual(0, path["constraints"]["orbit_degrees"])
         self.assertEqual(0, path["constraints"]["background_motion"])
         self.assertTrue(path["constraints"]["first_last_camera_match"])
+        self.assertEqual(1.0, path["motions"][0]["factor_start"])
+        self.assertEqual(1.0, path["motions"][0]["factor_end"])
+        self.assertEqual(1.016, path["motions"][0]["peak_factor"])
+        self.assertEqual(191, path["motions"][0]["end_frame_index"])
 
 
 if __name__ == "__main__":
