@@ -33,6 +33,7 @@ REQUIRED_TOP_LEVEL = {
     "schema",
     "id",
     "semantic_authority",
+    "contract_reference",
     "subject",
     "structure",
     "preservation",
@@ -78,12 +79,17 @@ def validate_surface(surface: Dict[str, Any]) -> List[str]:
         errors.append("schema must be wan.motion_control_surface.v0.1")
 
     authority = surface["semantic_authority"]
-    for field in ("system", "repository", "path", "version", "status"):
+    for field in ("system", "repository", "path", "version", "status", "commit"):
         if not authority.get(field):
             errors.append(f"semantic_authority.{field} is required")
 
     if authority.get("system") != "Motion Oracle":
         errors.append("semantic_authority.system must remain Motion Oracle")
+
+    contract = surface["contract_reference"]
+    for field in ("system", "repository", "path", "status", "commit"):
+        if not contract.get(field):
+            errors.append(f"contract_reference.{field} is required")
 
     regions = surface["structure"].get("regions", [])
     region_ids = [region.get("id") for region in regions]
@@ -103,6 +109,7 @@ def validate_surface(surface: Dict[str, Any]) -> List[str]:
     materials = set(surface["materials"])
     generic_targets = {"all_movable_regions", "paper_microtexture", "micro_patterns"}
     known_targets = set(region_map) | materials | generic_targets
+    non_geometric_prefixes = ("reveal.", "light.", "material.", "effect.", "shade.", "texture.")
 
     for scene in scenes:
         if float(scene.get("duration_seconds", 0)) <= 0:
@@ -116,9 +123,9 @@ def validate_surface(surface: Dict[str, Any]) -> List[str]:
             if target not in known_targets:
                 errors.append(f"{scene.get('id')}: unknown channel target {target!r}")
             if target in region_map and not region_map[target].get("movable", False):
-                if primitive.startswith(("rotate.", "translate.", "fold.")):
+                if not primitive.startswith(non_geometric_prefixes):
                     errors.append(
-                        f"{scene.get('id')}: {primitive} cannot move stationary region {target!r}"
+                        f"{scene.get('id')}: {primitive} is not permitted on stationary region {target!r}"
                     )
 
     prohibited = set(surface["preservation"].get("prohibited", []))
@@ -128,6 +135,19 @@ def validate_surface(surface: Dict[str, Any]) -> List[str]:
         errors.append("preservation.prohibited must include transparent_duplicate")
 
     generation = surface["generation"]
+    required_generation_fields = (
+        "fps",
+        "multi_keyframe_count",
+        "sparse_strengths",
+        "sparsectrl_strength",
+        "zoe_strength",
+        "canny_strength",
+        "animatediff_scale",
+        "ttm_path",
+    )
+    for field in required_generation_fields:
+        if field not in generation:
+            errors.append(f"generation.{field} is required")
     fps = int(generation.get("fps", 0))
     if fps <= 0:
         errors.append("generation.fps must be > 0")
@@ -240,6 +260,7 @@ def compile_scene(surface: Dict[str, Any], scene_id: str) -> Dict[str, Any]:
             "topology": surface["structure"].get("topology"),
             "grammar": scene["grammar"],
             "semantic_authority": surface["semantic_authority"],
+            "contract_reference": surface["contract_reference"],
         },
         "motion": {
             "body": {
@@ -278,12 +299,15 @@ def compile_scene(surface: Dict[str, Any], scene_id: str) -> Dict[str, Any]:
             "scene_id": scene_id,
             "grammar": scene["grammar"],
             "channels": channels,
+            "structure": surface["structure"],
+            "materials": surface["materials"],
             "lighting": surface["lighting"],
             "effects": surface.get("effects", {}),
             "camera": surface["camera"],
             "preservation": surface["preservation"],
             "frame_count": frame_count,
             "fps": fps,
+            "loop": bool(scene.get("loop", False)),
         },
     }
 
@@ -300,6 +324,7 @@ def compile_scene(surface: Dict[str, Any], scene_id: str) -> Dict[str, Any]:
         "surface_sha256": sha256(surface),
         "scene_id": scene_id,
         "semantic_authority": surface["semantic_authority"],
+        "contract_reference": surface["contract_reference"],
         "positive": positive,
         "negative": negative,
         "sections": sections,
@@ -331,6 +356,14 @@ def set_dotted(value: Dict[str, Any], dotted: str, replacement: Any) -> None:
 
 def build_experiment_variants(surface: Dict[str, Any]) -> List[Dict[str, Any]]:
     variants: List[Dict[str, Any]] = []
+    experiment_seed = int(surface.get("experiment_seed", 314159))
+    prompt_inputs = {
+        "base_image_prompt": surface.get("base_image_prompt", ""),
+        "subject": surface["subject"],
+        "negative": list(surface.get("negative", [])),
+        "semantic_authority": surface["semantic_authority"],
+        "contract_reference": surface["contract_reference"],
+    }
     for experiment in surface.get("experiments", []):
         for candidate in experiment["values"]:
             mutated = copy.deepcopy(surface)
@@ -343,6 +376,8 @@ def build_experiment_variants(surface: Dict[str, Any]) -> List[Dict[str, Any]]:
                     "prediction": experiment["prediction"],
                     "surface": mutated,
                     "surface_sha256": sha256(mutated),
+                    "execution_seed": experiment_seed,
+                    "prompt_inputs": copy.deepcopy(prompt_inputs),
                 }
             )
     return variants
