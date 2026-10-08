@@ -76,7 +76,7 @@ jobs:
           PY
 
   dry-run:
-    name: Dry run (import + prompt generation)
+    name: Dry run (prompt + sparse-keyframe metadata)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -86,10 +86,30 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install deps
+      - name: Generate deterministic prompt metadata without GPU/runtime dependencies
         run: |
-          pip install pyyaml python-dotenv requests watchdog tqdm pillow transformers torch --index-url https://download.pytorch.org/whl/cpu
+          python - <<'PY'
+          import random
+          from pathlib import Path
+          from src.prompt_engine import load_pack, generate_job_prompts
 
-      - name: Dry run with sparse keyframes
-        run: |
-          python generate.py --dry-run --sparse-keyframes --image input/IMG_4738.jpg || true
+          random.seed(314159)
+          pack = load_pack(Path("prompt-packs/surreal-ethereal-dancer.json"))
+          control = {
+              "multi_keyframe_count": 4,
+              "sparse_strengths": {"start": 0.90, "middle": 0.65, "end": 0.90},
+              "ttm_path": "ttm_paths/gentle_orbit.json",
+          }
+          jobs = generate_job_prompts(
+              pack,
+              ["calibration-subject", "stable-composition", "material-detail", "controlled-motion"],
+              variations_per_hybrid=1,
+              control_payload=control,
+              duration_seconds=6,
+              fps=24,
+          )
+          assert jobs, "prompt engine produced no jobs"
+          assert all(len(job["metadata"]["keyframes"]) == 4 for job in jobs)
+          assert all(job["metadata"]["ttm_path"] == "ttm_paths/gentle_orbit.json" for job in jobs)
+          print(f"OK: generated {len(jobs)} deterministic smoke-test jobs")
+          PY

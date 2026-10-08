@@ -1,0 +1,41 @@
+name: Motion Control Surface
+
+on:
+  pull_request:
+    paths:
+      - 'src/motion_control_surface.py'
+      - 'src/prompt_engine.py'
+      - 'prompt-packs/motion-control-surface-calibration.json'
+      - 'ttm_paths/locked_front_micro_dolly.json'
+      - 'tests/test_motion_control_surface.py'
+      - 'docs/MOTION_CONTROL_SURFACE.md'
+      - '.github/workflows/motion-control-surface.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/motion_control_surface.py'
+      - 'src/prompt_engine.py'
+      - 'prompt-packs/motion-control-surface-calibration.json'
+      - 'ttm_paths/locked_front_micro_dolly.json'
+      - 'tests/test_motion_control_surface.py'
+      - 'docs/MOTION_CONTROL_SURFACE.md'
+      - '.github/workflows/motion-control-surface.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate calibration JSON
+        run: python -m json.tool prompt-packs/motion-control-surface-calibration.json >/dev/null
+      - name: Validate locked-front TTM JSON
+        run: python -m json.tool ttm_paths/locked_front_micro_dolly.json >/dev/null
+      - name: Run focused tests
+        run: python -m unittest discover -s tests -p 'test_motion_control_surface.py' -v
