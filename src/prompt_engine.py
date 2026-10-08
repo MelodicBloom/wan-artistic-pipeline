@@ -78,19 +78,32 @@ def build_multikeyframe_metadata(
     timing = hybrid.get("timing", {})
     camera = hybrid.get("camera", {})
     keyframe_notes = hybrid.get("keyframe_notes") or DEFAULT_POSE_NOTES
-
-    times = [round(duration_seconds * i / max(count - 1, 1), 2) for i in range(count)]
+    if len(keyframe_notes) < 2:
+        keyframe_notes = list(keyframe_notes) + ["approved end state"]
+    frame_count = max(1, round(duration_seconds * fps))
+    emitted_duration = (frame_count - 1) / fps if frame_count > 1 else 0.0
     keyframe_labels = ["start"] + [f"mid{i}" for i in range(1, count - 1)] + ["end"]
+
+    def bound_note(index: int) -> str:
+        if index == 0:
+            return keyframe_notes[0]
+        if index == count - 1:
+            return keyframe_notes[-1]
+        source_index = round(index * (len(keyframe_notes) - 1) / (count - 1))
+        return keyframe_notes[source_index]
 
     keyframes = []
     for i, label in enumerate(keyframe_labels):
         is_anchor = (i == 0 or i == count - 1)
+        frame_index = round((frame_count - 1) * i / max(count - 1, 1))
+        time_seconds = frame_index / fps
         strength = float(strengths["start"] if i == 0 else strengths["end"] if i == count - 1 else strengths["middle"])
         keyframes.append({
             "id": label,
-            "t": times[i],
+            "frame_index": frame_index,
+            "t": round(time_seconds, 6),
             "strength": strength,
-            "pose": keyframe_notes[i] if i < len(keyframe_notes) else "interpolated",
+            "pose": bound_note(i),
             "behavior": motion.get("body", {}).get("type", "smooth interpolation"),
             "easing": motion.get("body", {}).get("easing", "cubic ease-in-out"),
             "cue": timing.get("motion_start", "start of clip") if is_anchor else "interpolated",
@@ -102,6 +115,8 @@ def build_multikeyframe_metadata(
         "hybrid_id": hybrid.get("id"),
         "hybrid_name": hybrid.get("name"),
         "duration_seconds": duration_seconds,
+        "emitted_duration_seconds": emitted_duration,
+        "frame_count": frame_count,
         "fps": fps,
         "ttm_path": ttm_path,
         "sparsectrl": {
