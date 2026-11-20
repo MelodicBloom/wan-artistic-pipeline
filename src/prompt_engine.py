@@ -5,6 +5,7 @@ Produces coherent, varied prompts per generation while staying on-aesthetic.
 Also generates structured multi-keyframe metadata per job.
 """
 
+import copy
 import json
 import random
 import logging
@@ -110,7 +111,7 @@ def build_multikeyframe_metadata(
             "is_anchor": is_anchor,
         })
 
-    return {
+    metadata = {
         "schema": "wan_art_pipeline.multikeyframe.v1",
         "hybrid_id": hybrid.get("id"),
         "hybrid_name": hybrid.get("name"),
@@ -134,6 +135,12 @@ def build_multikeyframe_metadata(
         "inspiration": hybrid.get("inspiration", ""),
         "takeaways": hybrid.get("takeaways", []),
     }
+    if "motion_program" in control_payload:
+        # Keep the compiled control surface attached to the provider-neutral
+        # metadata that the scheduler persists. A deep copy prevents later
+        # scheduler enrichment from mutating the caller's control payload.
+        metadata["motion_program"] = copy.deepcopy(control_payload["motion_program"])
+    return metadata
 
 
 def generate_job_prompts(
