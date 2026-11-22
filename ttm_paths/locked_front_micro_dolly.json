@@ -2,21 +2,27 @@
   "schema": "ttm_motion_path.v1",
   "name": "locked_front_micro_dolly",
   "description": "Front-locked calibration path for topology-sensitive relief, lattice, material and portrait-anchor motion. Eliminates orbit/roll/yaw so local motion, material response and edge drift can be evaluated independently.",
-  "duration": 8.0,
+  "duration": 8,
   "fps": 24,
   "motions": [
     {
       "type": "zoom",
-      "factor_start": 1.0,
-      "factor_end": 1.016,
+      "factor_start": 1,
+      "factor_end": 1,
       "easing": "cubic-in-out",
       "timing_cue": "reach maximum at mid-scene and return to 1.0 by the final frame",
-      "note": "1.6% micro-dolly exposes shallow depth without creating generic AI zoom or edge hallucination. Runtime binding must implement a closed path, not a one-way terminal zoom."
+      "note": "1.6% micro-dolly peaks at mid-scene and returns to the identical 1.0 endpoint on emitted frame 191; the machine-readable path is closed.",
+      "peak_factor": 1.016,
+      "peak_time_seconds": 4,
+      "start_frame_index": 0,
+      "end_frame_index": 191
     },
     {
       "type": "parallax",
       "strength": 0.04,
-      "layers": ["declared_movable_regions"],
+      "layers": [
+        "declared_movable_regions"
+      ],
       "note": "Very low parallax only for regions explicitly declared movable by the control surface. Stationary anchors and background remain fixed."
     }
   ],
